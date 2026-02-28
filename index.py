@@ -7,21 +7,40 @@ import os
 
 load_dotenv()
 
-CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
-CALLMEBOT_KEY   = os.environ.get("CALLMEBOT_KEY")
+DESTINATARIOS = [
+    {
+        "phone": os.environ.get("CALLMEBOT_PHONE_1"),
+        "key":   os.environ.get("CALLMEBOT_KEY_1")
+    },
+    {
+        "phone": os.environ.get("CALLMEBOT_PHONE_2"),
+        "key":   os.environ.get("CALLMEBOT_KEY_2")
+    },
+]
 
 # ── CONFIGURAÇÃO ──────────────────────────────────────────────
 BUSCAS = [
     {
-        "nome": "HB20 Comfort 2016-2019",
+        "nome": "HB20 Modelo Comfort Plus",
         "tipo": 1,
         "marca": 19,
         "string": "HB20",
         "versao": "HB20 Comfort Plus 1.0 12v",
         "faixaano1": 2016,
         "faixaano2": 2019,
-        "kmfim": "80.000"
+        "kmfim": "70.000"
     },
+    {
+        "nome": "HB20 Modelo Unique",
+        "tipo": 1,
+        "marca": 19,
+        "string": "HB20",
+        "versao": "HB20 Unique 1.0 12v",
+        "faixaano1": 2018,
+        "faixaano2": 2019,
+        "kmfim": "70.000"
+    },
+
 ]
 
 HISTORICO_PATH = "historico.json"
@@ -86,22 +105,26 @@ def salvar_csv(novos):
         writer.writerows(novos)
     print(f"[✓] {len(novos)} novos anúncios salvos em {RESULTADO_PATH}")
 
-# ── WHATSAPP via CallMeBot (gratuito) ─────────────────────────
+# ── WHATSAPP via CallMeBot ─────────────────────────
 def notificar_whatsapp(novos):
     import urllib.parse
+
+    linhas = []
     for a in novos:
-        msg = (
-            f"🚗 *Novo anúncio ShopCar!*\n"
+        linhas.append(
             f"📌 {a['modelo']} | {a['ano']}\n"
-            f"🎨 Cor: {a['cor']} | ⛽ {a['combustivel']}\n"
+            f"🎨 {a['cor']} | ⛽ {a['combustivel']}\n"
             f"📍 {a['km']} | 💰 {a['preco']}\n"
             f"📍 {a['cidade']}\n"
             f"🔗 {a['link']}"
         )
-        encoded = urllib.parse.quote(msg)
-        url = f"https://api.callmebot.com/whatsapp.php?phone={CALLMEBOT_PHONE}&text={encoded}&apikey={CALLMEBOT_KEY}"
-        requests.get(url, timeout=10)
-        time.sleep(2)  # evita flood
+    msg = f"🔔 *{len(novos)} novo(s) anúncio(s) encontrado(s):*\n\n" + "\n\n--------------------------\n\n".join(linhas[:5])
+    encoded = urllib.parse.quote(msg)
+
+    print(urllib.parse.unquote(encoded))
+    
+    
+    
 
 # ── JOB DIÁRIO ────────────────────────────────────────────────
 def job():
@@ -124,7 +147,9 @@ def job():
 if __name__ == "__main__":
     job()  
     schedule.every().day.at("08:00").do(job)
-    schedule.every().day.at("18:00").do(job) 
+    schedule.every().day.at("12:00").do(job)
+    schedule.every().day.at("16:00").do(job)
+    schedule.every().day.at("19:00").do(job)
     while True:
         schedule.run_pending()
         time.sleep(60)
