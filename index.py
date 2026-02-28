@@ -3,34 +3,17 @@ from bs4 import BeautifulSoup
 import json, os, schedule, time
 from datetime import datetime
 from dotenv import load_dotenv
+
+import json
 import os
 
 load_dotenv()
 
 # ── CONFIGURAÇÃO ──────────────────────────────────────────────
-BUSCAS = [
-    {
-        "nome": "HB20 Modelo Comfort Plus",
-        "tipo": 1,
-        "marca": 19,
-        "string": "HB20",
-        "versao": "HB20 Comfort Plus 1.0 12v",
-        "faixaano1": 2016,
-        "faixaano2": 2019,
-        "kmfim": "70.000"
-    },
-    {
-        "nome": "HB20 Modelo Unique",
-        "tipo": 1,
-        "marca": 19,
-        "string": "HB20",
-        "versao": "HB20 Unique 1.0 12v",
-        "faixaano1": 2018,
-        "faixaano2": 2019,
-        "kmfim": "70.000"
-    },
 
-]
+with open('modelosBusca.json', 'r', encoding='utf-8') as arquivo:
+    
+    BUSCAS = json.load(arquivo)
 
 HISTORICO_PATH = "historico.json"
 RESULTADO_PATH = "ofertas.csv"
@@ -116,7 +99,7 @@ def notificar_whatsapp(novos, nome_busca):
     destinatarios = [
         os.environ.get("DEST_PHONE1"),
         os.environ.get("DEST_PHONE2"),
-    ]
+     ]
 
     for numero in destinatarios:
         payload = {
@@ -139,17 +122,17 @@ def job():
             novos = checar_novos(anuncios)
             if novos:
                 salvar_csv(novos)
-                notificar_whatsapp(novos, busca["nome"])  # ← corrigido
+                notificar_whatsapp(novos, busca["nome"])  
             else:
                 print(f"     Nenhum novo anúncio.")
         except Exception as e:
             print(f"     [ERRO] {e}")
-        time.sleep(10)  # ← aumentei pra 10s, dá tempo do WPP enviar antes da próxima busca
+        time.sleep(10)
 
 # ── AGENDAMENTO ───────────────────────────────────────────────
 if __name__ == "__main__":
     job()  
-    schedule.every(1).hours.do(job)
+    schedule.every(1).hours.do(job) ## Aqui define o tempo de intervalo de cada verificação
     while True:
         schedule.run_pending()
         time.sleep(60)
