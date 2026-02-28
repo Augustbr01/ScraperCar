@@ -1,4 +1,4 @@
-# 🚗 ShopCar Scraper & Alerta WhatsApp
+# 🚗 ShopCar Scraper & Alerta WhatsApp (WPPConnect Server)
 
 Um sistema automatizado em Python desenvolvido para raspar (scrape) ofertas específicas de veículos no site [ShopCar](https://www.shopcar.com.br/), registrar o histórico e enviar notificações diretamente para o WhatsApp sempre que um novo anúncio for publicado.
 
