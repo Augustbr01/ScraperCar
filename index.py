@@ -7,17 +7,6 @@ import os
 
 load_dotenv()
 
-DESTINATARIOS = [
-    {
-        "phone": os.environ.get("CALLMEBOT_PHONE_1"),
-        "key":   os.environ.get("CALLMEBOT_KEY_1")
-    },
-    {
-        "phone": os.environ.get("CALLMEBOT_PHONE_2"),
-        "key":   os.environ.get("CALLMEBOT_KEY_2")
-    },
-]
-
 # ── CONFIGURAÇÃO ──────────────────────────────────────────────
 BUSCAS = [
     {
@@ -105,10 +94,8 @@ def salvar_csv(novos):
         writer.writerows(novos)
     print(f"[✓] {len(novos)} novos anúncios salvos em {RESULTADO_PATH}")
 
-# ── WHATSAPP via CallMeBot ─────────────────────────
-def notificar_whatsapp(novos):
-    import urllib.parse
-
+# ── WHATSAPP via WPPConnect Server API (EXTERNA) ─────────────────────────
+def notificar_whatsapp(novos, nome_busca):
     linhas = []
     for a in novos:
         linhas.append(
@@ -118,13 +105,29 @@ def notificar_whatsapp(novos):
             f"📍 {a['cidade']}\n"
             f"🔗 {a['link']}"
         )
-    msg = f"🔔 *{len(novos)} novo(s) anúncio(s) encontrado(s):*\n\n" + "\n\n--------------------------\n\n".join(linhas[:5])
-    encoded = urllib.parse.quote(msg)
 
-    print(urllib.parse.unquote(encoded))
-    
-    
-    
+    msg = f"🔔 *{nome_busca}*\n{len(novos)} anuncio(s) encontrado(s):\n\n" + "\n\n--------------------------\n\n".join(linhas)
+
+    url = f"{os.environ.get('WPPCONNECT_URL')}/api/{os.environ.get('WPPCONNECT_SESSION')}/send-message"
+    headers = {
+        "Authorization": f"Bearer {os.environ.get('WPPCONNECT_TOKEN')}",
+        "Content-Type": "application/json"
+    }
+    destinatarios = [
+        os.environ.get("DEST_PHONE1"),
+        os.environ.get("DEST_PHONE2"),
+    ]
+
+    for numero in destinatarios:
+        payload = {
+            "phone": numero,
+            "isGroup": False,
+            "message": msg
+        }
+        resp = requests.post(url, json=payload, headers=headers, timeout=10)
+        print(f"  [WPP] {numero} → {resp.status_code} | {resp.json().get('message', '')}")
+        time.sleep(2)
+
 
 # ── JOB DIÁRIO ────────────────────────────────────────────────
 def job():
@@ -136,12 +139,12 @@ def job():
             novos = checar_novos(anuncios)
             if novos:
                 salvar_csv(novos)
-                notificar_whatsapp(novos)
+                notificar_whatsapp(novos, busca["nome"])  # ← corrigido
             else:
                 print(f"     Nenhum novo anúncio.")
         except Exception as e:
             print(f"     [ERRO] {e}")
-        time.sleep(3) 
+        time.sleep(10)  # ← aumentei pra 10s, dá tempo do WPP enviar antes da próxima busca
 
 # ── AGENDAMENTO ───────────────────────────────────────────────
 if __name__ == "__main__":
