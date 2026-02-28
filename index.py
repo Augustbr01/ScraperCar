@@ -106,7 +106,7 @@ def notificar_whatsapp(novos, nome_busca):
             f"🔗 {a['link']}"
         )
 
-    msg = f"🔔 *{nome_busca}*\n{len(novos)} anuncio(s) encontrado(s):\n\n" + "\n\n--------------------------\n\n".join(linhas)
+    msg = f"🔔 *{nome_busca}*\n{len(novos)} novo(s) anuncio(s) encontrado(s):\n\n" + "\n\n--------------------------\n\n".join(linhas)
 
     url = f"{os.environ.get('WPPCONNECT_URL')}/api/{os.environ.get('WPPCONNECT_SESSION')}/send-message"
     headers = {
@@ -126,7 +126,7 @@ def notificar_whatsapp(novos, nome_busca):
         }
         resp = requests.post(url, json=payload, headers=headers, timeout=10)
         print(f"  [WPP] {numero} → {resp.status_code} | {resp.json().get('message', '')}")
-        time.sleep(2)
+        time.sleep(5)
 
 
 # ── JOB DIÁRIO ────────────────────────────────────────────────
@@ -149,10 +149,7 @@ def job():
 # ── AGENDAMENTO ───────────────────────────────────────────────
 if __name__ == "__main__":
     job()  
-    schedule.every().day.at("08:00").do(job)
-    schedule.every().day.at("12:00").do(job)
-    schedule.every().day.at("16:00").do(job)
-    schedule.every().day.at("19:00").do(job)
+    schedule.every(1).hours.do(job)
     while True:
         schedule.run_pending()
         time.sleep(60)
