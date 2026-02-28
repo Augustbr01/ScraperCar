@@ -12,7 +12,7 @@ Ideal para encontrar os melhores negócios de carros usados sem precisar checar 
 - **Múltiplos Destinatários:** Envia o alerta para mais de um número de WhatsApp configurado.
 - **Sistema Anti-Duplicidade:** Armazena um banco de dados local (`historico.json`) para garantir que você só receba notificações de anúncios genuinamente novos.
 - **Exportação de Dados:** Salva todos os anúncios validados em uma planilha (`ofertas.csv`) para análise posterior.
-- **Automação 24/7:** Execução agendada por intervalos regulares (ex: a cada 1 hora) rodando em background com `pm2`.
+- **Automação 24/7:** Execução agendada por intervalos regulares (ex: a cada 1 hora) rodando em background com `pm2` (24/7 desde que tenha disponivel um servidor para hospedagem).
 
 ## 🛠️ Tecnologias Utilizadas
 
