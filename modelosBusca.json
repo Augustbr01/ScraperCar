@@ -1,23 +1,13 @@
 [
     {
-        "nome": "HB20 Modelo Comfort Plus aaaa",
-        "tipo": 1,
-        "marca": 19,
-        "string": "HB20",
-        "versao": "HB20 Comfort Plus 1.0 12v",
-        "faixaano1": 2016,
-        "faixaano2": 2019,
-        "kmfim": "80.000"
-    },
-    {
         "nome": "Nome",
         "tipo": 1,
         "marca": 19,
-        "string": "HB20",
-        "versao": "HB20 Unique 1.0 12v",
+        "string": "Modelo",
+        "versao": "Versao do modelo",
         "faixaano1": 2018,
         "faixaano2": 2019,
-        "kmfim": "80.000"
+        "kmfim": "quilometragem"
 
     }
 
