@@ -2,3 +2,5 @@
 historico.json
 ofertas.csv
 __pycache__/index.cpython-314.pyc
+__pycache__
+venv

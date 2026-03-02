@@ -1,9 +1,8 @@
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pydantic import BaseModel
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -28,16 +27,22 @@ class BuscaRequest(BaseModel):
 async def buscar(busca: BuscaRequest):
     busca_dict = busca.model_dump(exclude_none=True)
 
-    lista = buscar_anuncios(busca_dict)
+    lista = await buscar_anuncios(busca_dict)
 
-    return {"Total": len(lista), "Resultado: ": lista}
+    return {"Total": len(lista), "Resultado": lista}
 
 
-def buscar_anuncios(busca: dict):
-    params = {k: v for k, v in busca.items() if k != "nome"}  
-    resp = requests.get("https://www.shopcar.com.br/busca.php", params=params, headers=HEADERS, timeout=15)
+async def buscar_anuncios(busca: dict):
+    params = {k: v for k, v in busca.items() if k != "nome"}
+    try:
+        async with httpx.AsyncClient(headers=HEADERS, timeout=15) as client:
+            resp = await client.get("https://www.shopcar.com.br/busca.php", params=params)
+            resp.raise_for_status()
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Erro ao acessar ShopCar: {e}")
+        
+
     soup = BeautifulSoup(resp.text, "html.parser")
-
     anuncios = []
     for item in soup.select("ul.itens"):
         link_tag = item.select_one("a.link")
