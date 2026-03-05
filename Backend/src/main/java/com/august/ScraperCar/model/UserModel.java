@@ -1,67 +1,32 @@
 package com.august.ScraperCar.model;
 
+import jakarta.persistence.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
-
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name="users")
 public class UserModel {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(nullable = false)
     private String nome;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(unique = true, nullable = false)
+    private String telefone;
+
+    @Column(nullable = false)
     private String senha;
-    private String numero;
-    private String datanasc;
 
-    public UUID getId() {
-        return id;
-    }
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public String getDatanasc() {
-        return datanasc;
-    }
-
-    public void setDatanasc(String datanasc) {
-        this.datanasc = datanasc;
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<UserAlerts> alertas;
 }
