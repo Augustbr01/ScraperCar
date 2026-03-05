@@ -2,9 +2,6 @@ package com.august.ScraperCar.model;
 
 
 import jakarta.persistence.*;
-import org.apache.catalina.User;
-
-import javax.swing.text.StyledEditorKit;
 import java.time.LocalDateTime;
 
 @Entity @Table(name = "user_alerts",
@@ -27,6 +24,43 @@ public class UserAlerts {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "userAlert")
-    private List<SentAnnouncement> anunciosEnviados;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public UserModel getUser() {
+        return user;
+    }
+
+    public void setUser(UserModel user) {
+        this.user = user;
+    }
+
+    public SharedSearchJob getJob() {
+        return job;
+    }
+
+    public void setJob(SharedSearchJob job) {
+        this.job = job;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
