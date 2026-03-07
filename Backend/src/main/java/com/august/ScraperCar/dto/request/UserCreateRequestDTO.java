@@ -1,4 +1,4 @@
-package com.august.ScraperCar.dto;
+package com.august.ScraperCar.dto.request;
 
 public class UserCreateRequestDTO {
     private String nome;

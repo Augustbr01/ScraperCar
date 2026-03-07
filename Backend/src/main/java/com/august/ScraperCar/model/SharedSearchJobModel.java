@@ -36,6 +36,10 @@ public class SharedSearchJobModel {
 
     private LocalDateTime created_at = LocalDateTime.now();
 
+
+
+
+
     public Long getId() {
         return id;
     }

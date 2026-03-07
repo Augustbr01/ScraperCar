@@ -19,9 +19,7 @@ public class SentAnnouncementModel {
     private String anuncio_id;
     private LocalDateTime sent_at = LocalDateTime.now();
 
-    public Long getId() {
-        return Id;
-    }
+    public Long getId() { return Id; }
 
     public void setId(Long id) {
         Id = id;

@@ -1,19 +1,18 @@
 package com.august.ScraperCar.service;
 
 import com.august.ScraperCar.config.SecurityConfig;
-import com.august.ScraperCar.dto.UserCreateRequestDTO;
+import com.august.ScraperCar.dto.request.UserCreateRequestDTO;
+import com.august.ScraperCar.dto.request.UserLoginRequestDTO;
 import com.august.ScraperCar.dto.response.UserCreateResponseDTO;
+import com.august.ScraperCar.dto.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import io.jsonwebtoken.Jwt;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.swing.text.html.Option;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -21,11 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SecurityConfig securityConfig;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SecurityConfig securityConfig) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SecurityConfig securityConfig, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.securityConfig = securityConfig;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     public UserCreateResponseDTO cadastro(UserCreateRequestDTO dto) {
@@ -52,6 +55,17 @@ public class UserService {
         );
     }
 
+    public UserLoginResponseDTO login(UserLoginRequestDTO dto) {
+        // Aplica o pepper antes de autenticar, igual ao cadastro
+        String senhacompepper = securityConfig.aplicarPepper(dto.senha());
 
+        // O Spring Security valida email + senha automaticamente
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.email(), senhacompepper)
+        );
 
+        // Se chegou aqui, autenticou com sucesso → gera o token
+        String token = jwtService.gerarToken(dto.email());
+        return new UserLoginResponseDTO(token, dto.email());
+    }
 }
