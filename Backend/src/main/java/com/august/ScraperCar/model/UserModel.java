@@ -1,6 +1,7 @@
 package com.august.ScraperCar.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,6 +16,7 @@ public class UserModel {
     @Column(nullable = false)
     private String nome;
 
+    @Email
     @Column(nullable = false, unique = true)
     private String email;
 

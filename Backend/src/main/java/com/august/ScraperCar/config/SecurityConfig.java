@@ -1,0 +1,51 @@
+package com.august.ScraperCar.config;
+
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Value("${security.pepper")
+    private String pepper;
+
+    @Bean
+    public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/cadastro", "/auth/login").permitAll()
+                        .anyRequest().authenticated()
+                );
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder(
+                16, // tamanho do salt
+                32, // tamanho do hash gerado em bytes
+                1, // paralelismo
+                65536, // memoria usada em KB (64MB)
+                3 // iterações
+        );
+    }
+
+    public String aplicarPepper(String senha) {
+        return senha + pepper;
+    }
+
+}

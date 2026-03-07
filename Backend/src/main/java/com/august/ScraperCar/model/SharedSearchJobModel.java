@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name="shared_search_jobs")
-public class SharedSearchJob {
+public class SharedSearchJobModel {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

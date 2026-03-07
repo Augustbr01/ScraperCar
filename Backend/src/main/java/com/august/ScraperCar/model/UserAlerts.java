@@ -18,7 +18,7 @@ public class UserAlerts {
 
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
-    private SharedSearchJob job;
+    private SharedSearchJobModel job;
 
     private Boolean ativo;
 
@@ -40,11 +40,11 @@ public class UserAlerts {
         this.user = user;
     }
 
-    public SharedSearchJob getJob() {
+    public SharedSearchJobModel getJob() {
         return job;
     }
 
-    public void setJob(SharedSearchJob job) {
+    public void setJob(SharedSearchJobModel job) {
         this.job = job;
     }
 
