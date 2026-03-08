@@ -1,6 +1,5 @@
-package com.august.ScraperCar.dto.response;
+package com.august.ScraperCar.dto.authentication.response;
 
-import java.util.List;
 import java.util.UUID;
 
 public class UserCreateResponseDTO {
