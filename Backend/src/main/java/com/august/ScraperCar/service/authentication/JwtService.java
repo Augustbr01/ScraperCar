@@ -1,4 +1,4 @@
-package com.august.ScraperCar.service;
+package com.august.ScraperCar.service.authentication;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -88,4 +88,23 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public String gerarRefreshToken(String email) {
+        return Jwts.builder()
+                .subject("REFRESH_" + email)
+                .expiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
+                .signWith(getSecretKey())
+                .compact();
+    }
+
+    public boolean isRefreshToken(String token) {
+        try {
+            String subject = extrairClaims(token).getSubject();
+            return subject.startsWith("REFRESH_");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
 }

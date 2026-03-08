@@ -1,14 +1,15 @@
-package com.august.ScraperCar.service;
+package com.august.ScraperCar.service.authentication;
 
 import com.august.ScraperCar.config.SecurityConfig;
-import com.august.ScraperCar.dto.request.UserCreateRequestDTO;
-import com.august.ScraperCar.dto.request.UserLoginRequestDTO;
-import com.august.ScraperCar.dto.response.UserCreateResponseDTO;
-import com.august.ScraperCar.dto.response.UserLoginResponseDTO;
+import com.august.ScraperCar.dto.authentication.request.RefreshRequestDTO;
+import com.august.ScraperCar.dto.authentication.request.UserCreateRequestDTO;
+import com.august.ScraperCar.dto.authentication.request.UserLoginRequestDTO;
+import com.august.ScraperCar.dto.authentication.response.RefreshResponseDTO;
+import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
+import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.UserRepository;
-import io.jsonwebtoken.Jwt;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,14 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SecurityConfig securityConfig, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            SecurityConfig securityConfig,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService
+    )
+    {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.securityConfig = securityConfig;
@@ -65,7 +73,23 @@ public class UserService {
         );
 
         // Se chegou aqui, autenticou com sucesso → gera o token
-        String token = jwtService.gerarToken(dto.email());
-        return new UserLoginResponseDTO(token, dto.email());
+        String accessToken = jwtService.gerarToken(dto.email());
+        String refreshToken = jwtService.gerarRefreshToken(dto.email());
+
+        return new UserLoginResponseDTO(accessToken, refreshToken, dto.email());
+    }
+
+    public RefreshResponseDTO refresh(RefreshRequestDTO dto) {
+        String refreshToken = dto.refreshToken();
+
+        if (!jwtService.isRefreshToken(refreshToken)) {
+            throw new BusinessException("Refresh token invalido", 401);
+        }
+
+        String email = jwtService.extrairEmail(refreshToken).replace("REFRESH_", "");
+        String novoAccess = jwtService.gerarToken(email);
+        String novoRefresh = jwtService.gerarRefreshToken(email);
+
+        return new RefreshResponseDTO(novoAccess, novoRefresh);
     }
 }
