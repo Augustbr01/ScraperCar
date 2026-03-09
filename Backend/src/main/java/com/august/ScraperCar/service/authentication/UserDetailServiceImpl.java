@@ -1,16 +1,11 @@
 package com.august.ScraperCar.service.authentication;
 
-import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.UserRepository;
-import com.august.ScraperCar.service.authentication.RateLimiter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
