@@ -3,6 +3,7 @@ package com.august.ScraperCar.service.authentication;
 import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.service.authentication.RateLimiter;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,23 +27,13 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        // RATE LIMIT ANTES DO BANCO!
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String clientIp = getClientIp(request);
-
-        if (!rateLimiter.tryConsume(clientIp)) {
-            throw new RuntimeException("Login rate limited - too many attempts");
-        }
-
-        // SÓ BANCO SE OK
-        UserModel user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Email não encontrado: " + email));
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getSenha())
-                .roles("USER")
-                .build();
+        return userRepository.findByEmail(email)
+                .map(user -> User.builder()
+                        .username(user.getEmail())
+                        .password(user.getSenha())
+                        .roles("USER")
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("Email não encontrado"));
     }
 
     private String getClientIp(HttpServletRequest request) {

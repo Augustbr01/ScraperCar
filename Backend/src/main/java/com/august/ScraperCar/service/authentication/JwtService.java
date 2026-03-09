@@ -19,6 +19,9 @@ public class JwtService {
     @Value("${security.jwt.expiration}")
     private Long expiration;
 
+    @Value("${security.refresh.expiration}")
+    private Long refreshExpiration;
+
     private SecretKey secretKey; // Cache para performance
 
     /**
@@ -92,7 +95,7 @@ public class JwtService {
     public String gerarRefreshToken(String email) {
         return Jwts.builder()
                 .subject("REFRESH_" + email)
-                .expiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSecretKey())
                 .compact();
     }
