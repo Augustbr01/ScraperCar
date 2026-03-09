@@ -28,11 +28,9 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    private RateLimiter rateLimiter;
 
     public AuthController(UserService userService, RateLimiter rateLimiter) {
         this.userService = userService;
-        this.rateLimiter = rateLimiter;
     }
 
     @PostMapping("/cadastro")
@@ -72,6 +70,17 @@ public class AuthController {
         response.addCookie(criarRefreshCookie(result.refreshToken()));
 
         return ResponseEntity.ok(new RefreshResponseDTO(result.accessToken(), null));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookie.setPath("/auth/refresh");
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(Map.of("message", "Logout realizado"));
     }
 
     private Cookie criarRefreshCookie(String refreshToken) {
