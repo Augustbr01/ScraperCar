@@ -13,14 +13,18 @@ public class SharedSearchJobModel {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String jobKey;
+    private long jobKey;
 
     @Column(nullable = false)
-    private String veiculo_key;
+    private long veiculo_key;
 
-    private String marca;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "marca_id")
+    private MarcasModel marca;
 
     private String modelo;
+
+    private String Versao;
 
     private BigDecimal precoMin;
 
@@ -30,7 +34,11 @@ public class SharedSearchJobModel {
 
     private Integer ano_max;
 
-    private String intervalo;
+    private String kminicio;
+
+    private String kmfinal;
+
+    private long intervalo;
 
     private boolean ativo;
 
@@ -48,27 +56,25 @@ public class SharedSearchJobModel {
         this.id = id;
     }
 
-    public String getJobKey() {
-        return jobKey;
-    }
+    public long getJobKey() { return jobKey; }
 
-    public void setJobKey(String jobKey) {
+    public void setJobKey(long jobKey) {
         this.jobKey = jobKey;
     }
 
-    public String getVeiculo_key() {
+    public long getVeiculo_key() {
         return veiculo_key;
     }
 
-    public void setVeiculo_key(String veiculo_key) {
+    public void setVeiculo_key(long veiculo_key) {
         this.veiculo_key = veiculo_key;
     }
 
-    public String getMarca() {
+    public MarcasModel getMarca() {
         return marca;
     }
 
-    public void setMarca(String marca) {
+    public void setMarca(MarcasModel marca) {
         this.marca = marca;
     }
 
@@ -112,11 +118,11 @@ public class SharedSearchJobModel {
         this.ano_max = ano_max;
     }
 
-    public String getIntervalo() {
+    public long getIntervalo() {
         return intervalo;
     }
 
-    public void setIntervalo(String intervalo) {
+    public void setIntervalo(long intervalo) {
         this.intervalo = intervalo;
     }
 
@@ -134,5 +140,29 @@ public class SharedSearchJobModel {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+
+    public String getKminicio() {
+        return kminicio;
+    }
+
+    public void setKminicio(String kminicio) {
+        this.kminicio = kminicio;
+    }
+
+    public String getKmfinal() {
+        return kmfinal;
+    }
+
+    public void setKmfinal(String kmfinal) {
+        this.kmfinal = kmfinal;
+    }
+
+    public String getVersao() {
+        return Versao;
+    }
+
+    public void setVersao(String versao) {
+        Versao = versao;
     }
 }
