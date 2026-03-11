@@ -15,5 +15,5 @@ public class AlertRequestDTO {
     private BigDecimal precoMin;
     private String kminicio;
     private String kmfinal;
-    private long intervaloms;
+    private Integer intervalo;
 }

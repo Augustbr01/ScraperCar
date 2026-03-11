@@ -19,7 +19,7 @@ public class AlertController {
     @PostMapping("/create")
     public ResponseEntity<AlertResponseDTO> criaralerta(@RequestBody AlertRequestDTO dto, @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
-        return alertsService.criaralerta(dto, token);
+        return alertsService.criarAlerta(dto, token);
     }
 
     //@PostMapping("/create")

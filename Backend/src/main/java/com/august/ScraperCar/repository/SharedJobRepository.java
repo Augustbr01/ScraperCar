@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SharedJobRepository extends JpaRepository<SharedSearchJobModel, Long> {
-    Optional<SharedSearchJobModel> findSharedSearchJobModelByJobKey(long jobkey);
+    Optional<SharedSearchJobModel> findByVeiculoKey(String veiculoKey);
 }
