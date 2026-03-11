@@ -1,37 +1,22 @@
-HELP.md
+# Maven
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-src/main/resources/application.properties
-**/application.properties
-src/main/java/com/august/ScraperCar/controller/TesteController.java
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IntelliJ
+.idea/
 *.iml
-*.ipr
+out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Spring Boot local
+application-test.properties
+application-local.properties
+src/main/resources/application-local.properties
 
-### VS Code ###
-.vscode/
+# Pasta teste (que você quer sumir)
+src/main/java/com/august/ScraperCar/controller/test/
+
+# Logs
+*.log
+logs/
+
+# Temp
+.DS_Store
