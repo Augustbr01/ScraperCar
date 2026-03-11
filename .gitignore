@@ -10,3 +10,7 @@ Backend/.mvn/wrapper/maven-wrapper.jar
 .DS_Store
 .env
 README.md~
+.idea/
+
+target/
+
