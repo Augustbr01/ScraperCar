@@ -102,7 +102,17 @@
 			<artifactId>bucket4j_jdk17-core</artifactId>
 			<version>8.15.0</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.3.1-jre</version>  <!-- Última em 2026 -->
+		</dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

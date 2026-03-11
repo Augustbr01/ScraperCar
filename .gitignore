@@ -10,6 +10,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/main/java/com/august/ScraperCar/controller/TesteController.java
 
 application.properties/
 
