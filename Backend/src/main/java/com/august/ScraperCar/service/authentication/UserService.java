@@ -44,6 +44,12 @@ public class UserService {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BusinessException("Email já cadastrado", 409);
         }
+
+        if (userRepository.existsByTelefone(dto.getTelefone())) {
+            throw new BusinessException("Telefone ja cadastrado", 409);
+        }
+
+
         UserModel newUser = new UserModel();
         newUser.setNome(dto.getNome());
         newUser.setSenha(
