@@ -43,7 +43,7 @@ public class AlertsService {
     }
 
 
-    public ResponseEntity<AlertResponseDTO> criarAlerta(AlertRequestDTO dto, String token) {  // Nome corrigido
+    public ResponseEntity<AlertResponseDTO> criarAlerta(AlertRequestDTO dto, String token) {
 
         String email = jwtService.extrairEmail(token);
         Optional<UserModel> user = userRepository.findByEmail(email);
