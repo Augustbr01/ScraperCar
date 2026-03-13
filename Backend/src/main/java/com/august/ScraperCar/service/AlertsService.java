@@ -64,7 +64,6 @@ public class AlertsService {
         Optional<SharedSearchJobModel> job = sharedJobRepository.findByVeiculoKey(veiculokeyStr);
 
         if (job.isPresent()) {
-            // ✅ ÚNICA validação duplicada - AGORA segura!
             if (userAlertRepository.existsByUser_IdAndJob_VeiculoKey(userID.getId(), job.get().getVeiculoKey())) {
                 throw new BusinessException("Você já possui um alerta com este veículo!", 409);
             }
