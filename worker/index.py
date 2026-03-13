@@ -16,6 +16,8 @@ class BuscaRequest(BaseModel):
     marca: int | None = None
     string: str | None = None
     versao: str | None = None
+    valorinicio: int | None = None
+    valorfim: int | None = None
     faixaano1: int | None = None
     faixaano2: int | None = None
     kminicio: str | None = None
