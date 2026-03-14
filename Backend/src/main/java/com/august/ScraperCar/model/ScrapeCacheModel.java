@@ -25,6 +25,4 @@ public class ScrapeCacheModel {
     private String resultado;
 
     private LocalDateTime scrapedAt =  LocalDateTime.now();
-
-
 }
