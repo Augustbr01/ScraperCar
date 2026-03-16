@@ -14,9 +14,10 @@ import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.service.authentication.JwtService;
 import com.google.common.hash.Hashing;
 import org.jspecify.annotations.NonNull;
+import org.quartz.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import org.quartz.SchedulerException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -29,21 +30,26 @@ public class AlertsService {
     public final UserAlertRepository userAlertRepository;
     public final MarcaRepository marcaRepository;
     public final JwtService jwtService;
+    public final Scheduler scheduler;
+
 
     public AlertsService(UserRepository userRepository,
                          SharedJobRepository sharedJobRepository,
                          UserAlertRepository userAlertRepository,
-                         MarcaRepository marcaRepository, JwtService jwtService
+                         MarcaRepository marcaRepository,
+                         JwtService jwtService,
+                         Scheduler scheduler
     ) {
         this.userRepository = userRepository;
         this.sharedJobRepository = sharedJobRepository;
         this.userAlertRepository = userAlertRepository;
-        this.marcaRepository = marcaRepository;
+        this.marcaRepository = marcaRepository; 
         this.jwtService = jwtService;
+        this.scheduler = scheduler;
     }
 
 
-    public ResponseEntity<AlertResponseDTO> criarAlerta(AlertRequestDTO dto, String token) {
+    public ResponseEntity<AlertResponseDTO> criarAlerta(AlertRequestDTO dto, String token) throws SchedulerException {
 
         String email = jwtService.extrairEmail(token);
         Optional<UserModel> user = userRepository.findByEmail(email);
@@ -90,6 +96,26 @@ public class AlertsService {
 
             SharedSearchJobModel newjob = getJob(dto, veiculokeyStr, marca);
             SharedSearchJobModel savedJob = sharedJobRepository.save(newjob);
+
+            JobDetail jobDetail = JobBuilder.newJob(SearchJob.class)
+                            .withIdentity("job-" + savedJob.getId(), "scraper")
+                                    .usingJobData("jobId", savedJob.getId())
+                                            .build();
+
+            Trigger trigger = TriggerBuilder.newTrigger()
+                            .withIdentity("trigger-" + savedJob.getId(), "scraper")
+                                    .forJob(jobDetail)
+                                            .withSchedule(SimpleScheduleBuilder
+                                                    .repeatMinutelyForever(savedJob.getIntervalo()))
+                                                    .build();
+
+            try {
+                scheduler.scheduleJob(jobDetail, trigger);
+            } catch (SchedulerException e) {
+                throw new BusinessException("Erro ao agendar job: " + e.getMessage(), 500);
+            }
+
+            System.out.println("LOG: Job agendado com ID: " + savedJob.getId());
 
             criarUserAlert(dto, userID, savedJob);
             return ResponseEntity.ok(new AlertResponseDTO("Alerta e job criado com sucesso!", veiculokey));
