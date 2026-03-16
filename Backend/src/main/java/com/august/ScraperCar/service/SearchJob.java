@@ -1,14 +1,12 @@
 package com.august.ScraperCar.service;
 
-import com.august.ScraperCar.repository.SentAnnouncementRepository;
+import com.august.ScraperCar.model.SharedSearchJobModel;
 import com.august.ScraperCar.repository.SharedJobRepository;
-import com.august.ScraperCar.repository.UserAlertRepository;
-import com.august.ScraperCar.service.scraper.ScrapingService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 
@@ -16,14 +14,23 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SearchJob implements Job {
 
-    @Autowired private SharedJobRepository  sharedJobRepository;
-    @Autowired private UserAlertRepository userAlertsRepo;
-    @Autowired private SentAnnouncementRepository sentRepo;
-    @Autowired private ScrapingService scrapingService;
-    @Autowired private WhatsAppService whatsappService;
-
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        
+        try {
+            Long jobId = context.getMergedJobDataMap().getLong("jobId");
+            log.info("\uD83D\uDE80 SearchJob executando jobId: " + jobId);
+
+            ApplicationContext ctx = (ApplicationContext) context
+                    .getScheduler()
+                    .getContext()
+                    .get("applicationContext");
+
+            SharedJobRepository jobRepo = ctx.getBean(SharedJobRepository.class);
+            SharedSearchJobModel job = jobRepo.findById(jobId).orElseThrow();
+            log.info("✅ Job encontrado: {}", job.getVeiculoKey());
+        } catch (Exception e) {
+            log.error("❌ Erro SearchJob: ", e);
+            throw new JobExecutionException(e);
+        }
     }
 }
