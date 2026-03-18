@@ -3,6 +3,7 @@ package com.august.ScraperCar.service.scraper;
 import com.august.ScraperCar.dto.scraper.AnuncioDTO;
 import com.august.ScraperCar.dto.scraper.ScraperRequest;
 import com.august.ScraperCar.dto.scraper.ScraperResponse;
+import com.august.ScraperCar.dto.scraper.ScraperResult;
 import com.august.ScraperCar.model.ScrapeCacheModel;
 import com.august.ScraperCar.model.SharedSearchJobModel;
 import com.august.ScraperCar.repository.ScrapeCacheRepository;
@@ -26,20 +27,20 @@ public class ScrapingService {
         this.scrapeCacheRepository = scrapeCacheRepository;
     }
 
-    public List<AnuncioDTO> getFreshAnuncios(SharedSearchJobModel job) {
+    public ScraperResult getAnuncios(SharedSearchJobModel job) {
         String veiculoKey = job.getVeiculoKey();
 
         Optional<ScrapeCacheModel> cacheOpt = scrapeCacheRepository.findByVeiculoKey(veiculoKey);
 
         if (cacheOpt.isPresent() && !isCacheExpirado(cacheOpt.get(), job.getIntervalo())) {
-             return parseCache(cacheOpt.get().getResultado());
+             return new ScraperResult(parseCache(cacheOpt.get().getResultado()), false);
         }
 
         ScraperRequest request = buildRequest(job);
         ScraperResponse response = scraperService.scrapeCarro(request);
 
         saveCache(veiculoKey, response);
-        return response.getResultado();
+        return new ScraperResult(response.getResultado(), true);
     }
 
     public ScraperRequest buildRequest(SharedSearchJobModel job) {

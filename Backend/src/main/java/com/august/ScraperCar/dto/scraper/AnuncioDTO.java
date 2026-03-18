@@ -2,6 +2,8 @@ package com.august.ScraperCar.dto.scraper;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class AnuncioDTO {
         private String busca;
@@ -18,7 +20,7 @@ public class AnuncioDTO {
 
         private String km;
 
-        private String preco;
+        private BigDecimal preco;
 
         private String cidade;
 

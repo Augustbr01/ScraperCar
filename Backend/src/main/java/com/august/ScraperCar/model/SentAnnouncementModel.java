@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SentAnnouncementModel {
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -28,5 +29,11 @@ public class SentAnnouncementModel {
     @Column(nullable = false)
     private String anuncioId;
 
-    private LocalDateTime sentAt = LocalDateTime.now();
+    private BigDecimal ultimoPreco;
+
+    private LocalDateTime precoAtualizadoEm;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime sentAt;
 }
