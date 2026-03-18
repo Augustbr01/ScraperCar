@@ -40,6 +40,7 @@ public class WhatsAppService {
     private String tokenWPP;
 
     public void enviarAlerta(UserModel user, AnuncioDTO anuncio) {
+        System.out.println("Enviar alerta entrou!");
         String mensagem = formatarMensagem(anuncio, "alertaNovo", null);
 
         WppMessageRequest body = new WppMessageRequest(
@@ -64,6 +65,7 @@ public class WhatsAppService {
     }
 
     private String formatarMensagem(AnuncioDTO a, String tipo, BigDecimal precoAntigo) {
+        System.out.println("formatar mensagem entrou!");
         if (tipo.equals("alertaNovo")) {
             return "🚗 *Novo anúncio encontrado!*\n\n" +
                     "*" + a.getModelo() + "*\n" +
@@ -120,6 +122,7 @@ public class WhatsAppService {
     }
 
     private void post(WppMessageRequest body) {
+        System.out.println("Post entrou!");
         wppClient.post()
                 .uri("/api/" + session + "/send-message")
                 .header("Authorization", "Bearer " + tokenWPP)
@@ -127,5 +130,7 @@ public class WhatsAppService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        System.out.println("post saiu!");
     }
+
 }

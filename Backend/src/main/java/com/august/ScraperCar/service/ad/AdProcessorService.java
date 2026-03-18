@@ -31,6 +31,7 @@ public class AdProcessorService {
     }
 
     public void processar(SharedSearchJobModel job, ScraperResult result) {
+        System.out.println("Processar iniciou!");
         if (!result.isFreshScrape()) return;
 
         List<UserAlerts> alertas = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey());
@@ -40,9 +41,11 @@ public class AdProcessorService {
                 processarAnuncio(alerta, anuncio);
             }
         }
+        System.out.println("Processar fim!");
     }
 
     private void processarAnuncio(UserAlerts alerta, AnuncioDTO anuncio) {
+        System.out.println("Processar anuncio inicio");
         Optional<SentAnnouncementModel> sent = sentAnnouncementRepository.findByUserAlertsAndAnuncioId(alerta, anuncio.getId());
 
         if (sent.isEmpty()) {
@@ -52,9 +55,11 @@ public class AdProcessorService {
             whatsAppService.enviarAlertaPreco(alerta.getUser(), anuncio, sent.get().getUltimoPreco());
             alterarSentPreco(sent.get(), anuncio);
         }
+        System.out.println("Processar anuncio fim");
     }
 
     private void salvarSent(UserAlerts alerta, AnuncioDTO anuncio) {
+        System.out.println("Salvar SENT!");
         SentAnnouncementModel sent = new SentAnnouncementModel();
         sent.setUserAlerts(alerta);
         sent.setAnuncioId(anuncio.getId());

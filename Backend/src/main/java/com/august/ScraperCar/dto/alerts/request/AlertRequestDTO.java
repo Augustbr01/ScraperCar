@@ -11,9 +11,9 @@ public class AlertRequestDTO {
     private String versao;
     private int faixaano1;
     private int faixaano2;
-    private BigDecimal precoMax;
-    private BigDecimal precoMin;
+    private BigDecimal valorinicio;
+    private BigDecimal valorfim;
     private String kminicio;
-    private String kmfinal;
+    private String kmfim;
     private Integer intervalo;
 }

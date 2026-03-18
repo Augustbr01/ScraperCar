@@ -60,8 +60,8 @@ public class AlertsService {
 
         long veiculokey = hashVeiculo(dto.getMarca(), dto.getModelo(), dto.getVersao(),
                 dto.getFaixaano1(), dto.getFaixaano2(),
-                dto.getPrecoMin(), dto.getPrecoMax(),
-                dto.getKminicio(), dto.getKmfinal());
+                dto.getValorinicio(), dto.getValorfim(),
+                dto.getKminicio(), dto.getKmfim());
 
         System.out.println("LOG: PROCURANDO JOB NO BANCO COM O VEICULOKEY");
 
@@ -130,12 +130,12 @@ public class AlertsService {
         newjob.setModelo(dto.getModelo());
         newjob.setVersao(dto.getVersao());
         newjob.setIntervalo(dto.getIntervalo());
-        newjob.setPrecoMax(dto.getPrecoMax());
-        newjob.setPrecoMin(dto.getPrecoMin());
+        newjob.setValorfim(dto.getValorfim());
+        newjob.setValorinicio(dto.getValorinicio());
         newjob.setAnoMin(dto.getFaixaano1());
         newjob.setAnoMax(dto.getFaixaano2());
-        newjob.setKmInicio(dto.getKminicio());
-        newjob.setKmFinal(dto.getKmfinal());
+        newjob.setKminicio(dto.getKminicio());
+        newjob.setKmfim(dto.getKmfim());
         newjob.setAtivo(true);
 
         newjob.setMarca(marca.get());

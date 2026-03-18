@@ -11,13 +11,13 @@ app = FastAPI()
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
 class BuscaRequest(BaseModel):
-    nome: str
+    nome: str | None = None
     tipo: int | None = None
     marca: int | None = None
     string: str | None = None
     versao: str | None = None
-    valorinicio: int | None = None
-    valorfim: int | None = None
+    valorinicio: float | None = None  # ← float!
+    valorfim: float | None = None     # ← float!
     faixaano1: int | None = None
     faixaano2: int | None = None
     kminicio: str | None = None
@@ -54,20 +54,27 @@ async def buscar_anuncios(busca: dict):
         def texto(seletor):
             el = item.select_one(seletor)
             return el.text.strip() if el else "N/A"
+        preco_texto = texto(".preco")
+        preco_num = None
+        if preco_texto and "R$" in preco_texto:
+            preco_limpo = preco_texto.replace("R$", "").replace(".", "").replace(",", ".").strip()
+            try:
+                preco_num = float(preco_limpo)
+            except ValueError:
+                pass
 
         anuncios.append({
-            "busca":       busca["nome"], 
+            "busca":       busca["nome"],
             "id":          link_tag["href"].split("/")[-1],
             "modelo":      texto(".modelo"),
             "ano":         texto(".caract-anomodelo"),
             "cor":         texto(".caract-cor"),
             "combustivel": texto(".caract-combust"),
             "km":          texto(".caract-km"),
-            "preco":       texto(".preco"),
+            "preco":       preco_num,
             "cidade":      texto(".cidade"),
             "link":        link_tag["href"],
             "data_encontrado": datetime.now().strftime("%d/%m/%Y %H:%M"),
         })
 
     return anuncios
-

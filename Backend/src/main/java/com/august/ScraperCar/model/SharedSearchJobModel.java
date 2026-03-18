@@ -27,12 +27,12 @@ public class SharedSearchJobModel {
 
     private String modelo;
     private String versao;
-    private BigDecimal precoMin;
-    private BigDecimal precoMax;
+    private BigDecimal valorinicio;
+    private BigDecimal valorfim;
     private Integer anoMin;
     private Integer anoMax;
-    private String kmInicio;
-    private String kmFinal;
+    private String kminicio;
+    private String kmfim;
 
     @Column(nullable = false)
     private Integer intervalo;

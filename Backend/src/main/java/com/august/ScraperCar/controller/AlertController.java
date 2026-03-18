@@ -21,9 +21,4 @@ public class AlertController {
         String token = authHeader.replace("Bearer ", "");
         return alertsService.criarAlerta(dto, token);
     }
-
-    //@PostMapping("/create")
-    //public String criaralerta() {
-    //    return "teste";
-    //}
 }

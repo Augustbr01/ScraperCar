@@ -28,6 +28,7 @@ public class ScrapingService {
     }
 
     public ScraperResult getAnuncios(SharedSearchJobModel job) {
+        System.out.println("Get anuncios entrou!");
         String veiculoKey = job.getVeiculoKey();
 
         Optional<ScrapeCacheModel> cacheOpt = scrapeCacheRepository.findByVeiculoKey(veiculoKey);
@@ -40,24 +41,26 @@ public class ScrapingService {
         ScraperResponse response = scraperService.scrapeCarro(request);
 
         saveCache(veiculoKey, response);
+        System.out.println("cache salvo");
         return new ScraperResult(response.getResultado(), true);
     }
 
     public ScraperRequest buildRequest(SharedSearchJobModel job) {
         return new ScraperRequest(
-                null,
+                "Alerta",
                 1,
                 job.getMarca().getId(),
                 job.getModelo(),
                 job.getVersao(),
-                job.getPrecoMin().intValue(),
-                job.getPrecoMax().intValue(),
+                job.getValorinicio(),
+                job.getValorfim(),
                 job.getAnoMin(),
                 job.getAnoMax(),
-                job.getKmInicio(),
-                job.getKmFinal()
+                job.getKminicio(),
+                job.getKmfim()
         );
     }
+
 
     private boolean isCacheExpirado(ScrapeCacheModel cache, int intervalo) {
         return Duration.between(cache.getScrapedAt(), LocalDateTime.now())
