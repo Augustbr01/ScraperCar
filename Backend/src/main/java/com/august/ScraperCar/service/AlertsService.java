@@ -97,7 +97,7 @@ public class AlertsService {
             SharedSearchJobModel newjob = getJob(dto, veiculokeyStr, marca);
             SharedSearchJobModel savedJob = sharedJobRepository.save(newjob);
 
-            JobDetail jobDetail = JobBuilder.newJob(SearchJob.class)
+            JobDetail jobDetail = JobBuilder.newJob(JobExecutor.class)
                             .withIdentity("job-" + savedJob.getId(), "scraper")
                                     .usingJobData("jobId", savedJob.getId())
                                             .build();
