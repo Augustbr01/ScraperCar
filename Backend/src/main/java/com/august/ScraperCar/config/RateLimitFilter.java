@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,8 +13,11 @@ import java.io.IOException;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private RateLimiter rateLimiter;
+    private final RateLimiter rateLimiter;
+
+    public RateLimitFilter(RateLimiter rateLimiter) {
+        this.rateLimiter = rateLimiter;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

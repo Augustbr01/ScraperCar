@@ -46,13 +46,18 @@ public class JwtService {
     /**
      * Gera JWT token para o email informado
      */
-    public String gerarToken(String email) {
+    public String gerarToken(String email, String role) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSecretKey())
                 .compact();
+    }
+
+    public String extrairRole(String token) {
+        return (String) extrairClaims(token).get("role");
     }
 
     /**
@@ -92,9 +97,10 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String gerarRefreshToken(String email) {
+    public String gerarRefreshToken(String email, String role) {
         return Jwts.builder()
                 .subject("REFRESH_" + email)
+                .claim("role", role)
                 .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSecretKey())
                 .compact();

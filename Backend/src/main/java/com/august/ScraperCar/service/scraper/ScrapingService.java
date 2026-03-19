@@ -40,12 +40,16 @@ public class ScrapingService {
         ScraperRequest request = buildRequest(job);
         ScraperResponse response = scraperService.scrapeCarro(request);
 
+        if (response == null || response.getResultado() == null) {
+            throw new RuntimeException("Scraper retornou resposta vazia para veiculoKey: " + job.getVeiculoKey());
+        }
+
         saveCache(veiculoKey, response);
         System.out.println("cache salvo");
         return new ScraperResult(response.getResultado(), true);
     }
 
-    public ScraperRequest buildRequest(SharedSearchJobModel job) {
+    private ScraperRequest buildRequest(SharedSearchJobModel job) {
         return new ScraperRequest(
                 "Alerta",
                 1,
@@ -87,6 +91,7 @@ public class ScrapingService {
             ScraperResponse scraperResponse = objectMapper.readValue(json, ScraperResponse.class);
             return scraperResponse.getResultado();
         } catch (Exception e) {
+            System.out.println("WARN: Erro ao parsear cache, ignorando: " + e.getMessage());
             return List.of();
         }
     }

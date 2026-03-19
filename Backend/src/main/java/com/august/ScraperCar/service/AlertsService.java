@@ -3,13 +3,10 @@ package com.august.ScraperCar.service;
 import com.august.ScraperCar.dto.alerts.request.AlertRequestDTO;
 import com.august.ScraperCar.dto.alerts.response.AlertResponseDTO;
 import com.august.ScraperCar.dto.alerts.response.UserAlertResponseDTO;
-import com.august.ScraperCar.dto.scraper.ScraperResult;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.*;
 import com.august.ScraperCar.repository.*;
-import com.august.ScraperCar.service.ad.AdProcessorService;
 import com.august.ScraperCar.service.authentication.JwtService;
-import com.august.ScraperCar.service.scraper.ScrapingService;
 import com.google.common.hash.Hashing;
 import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
@@ -32,8 +29,6 @@ public class AlertsService {
     public final MarcaRepository marcaRepository;
     public final JwtService jwtService;
     public final Scheduler scheduler;
-    public final ScrapingService scrapingService;
-    public final AdProcessorService adProcessorService;
     public final SentAnnouncementRepository sentRepo;
 
 
@@ -43,8 +38,6 @@ public class AlertsService {
                          MarcaRepository marcaRepository,
                          JwtService jwtService,
                          Scheduler scheduler,
-                         ScrapingService scrapingService,
-                         AdProcessorService adProcessorService,
                          SentAnnouncementRepository sentRepo
     ) {
         this.userRepository = userRepository;
@@ -53,8 +46,6 @@ public class AlertsService {
         this.marcaRepository = marcaRepository;
         this.jwtService = jwtService;
         this.scheduler = scheduler;
-        this.scrapingService = scrapingService;
-        this.adProcessorService = adProcessorService;
         this.sentRepo = sentRepo;
     }
 
@@ -184,9 +175,13 @@ public class AlertsService {
         userAlertRepository.save(alerta);
         System.out.println("LOG: UserAlert criado!");
 
-        ScraperResult result = scrapingService.getAnuncios(job);
-        adProcessorService.processar(job, result);
-        System.out.println("✅ Scrape inicial: " + result.anuncios().size() + " anúncios processados");
+        try {
+            scheduler.triggerJob(JobKey.jobKey("job-" + job.getId(), "scraper"));
+            System.out.println("Job disparado imediatamente para jobId: " + job.getId());
+        } catch (SchedulerException e) {
+            throw new BusinessException("Erro ao disparar job: " + e.getMessage(), 500);
+        }
+        System.out.println("✅ Job agendado para execução imediata");
     }
 
     private String buildCron(int intervaloMinutos) {
@@ -213,7 +208,6 @@ public class AlertsService {
         }
 
         SharedSearchJobModel job = alerta.getJob();
-        List<UserAlerts> alertasDoJob = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey());
 
         sentRepo.deleteByUserAlertsId(alerta.getId());
         System.out.println("LOG: SentAnnouncements excluídos");
@@ -221,7 +215,9 @@ public class AlertsService {
         userAlertRepository.delete(alerta);
         System.out.println("User Alert excluido com sucesso!");
 
-        if (alertasDoJob.size() == 1) {
+        boolean jobSemUsuarios = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey()).isEmpty();
+
+        if (jobSemUsuarios) {
             TriggerKey triggerKey = TriggerKey.triggerKey("trigger-" + job.getId(), "scraper");
             JobKey jobKey = JobKey.jobKey("job-" + job.getId(), "scraper");
 
