@@ -12,8 +12,11 @@ import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -74,13 +77,21 @@ public class UserService {
         String senhacompepper = securityConfig.aplicarPepper(dto.senha());
 
         // O Spring Security valida email + senha automaticamente
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), senhacompepper)
-        );
+        Authentication auth;
+        try {
+            auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.email(), senhacompepper)
+            );
+        } catch (Exception e) {
+            throw new BusinessException("Email ou senha invalido!", 409);
+        }
+
+
+        String role = Objects.requireNonNull(auth.getAuthorities().iterator().next().getAuthority()).replace("ROLE_", "");
 
         // Se chegou aqui, autenticou com sucesso → gera o token
-        String accessToken = jwtService.gerarToken(dto.email());
-        String refreshToken = jwtService.gerarRefreshToken(dto.email());
+        String accessToken = jwtService.gerarToken(dto.email(), role);
+        String refreshToken = jwtService.gerarRefreshToken(dto.email(), role);
 
         return new UserLoginResponseDTO(accessToken, refreshToken, dto.email());
     }
@@ -93,8 +104,10 @@ public class UserService {
         }
 
         String email = jwtService.extrairEmail(refreshToken).replace("REFRESH_", "");
-        String novoAccess = jwtService.gerarToken(email);
-        String novoRefresh = jwtService.gerarRefreshToken(email);
+        String role = jwtService.extrairRole(refreshToken);
+
+        String novoAccess = jwtService.gerarToken(email,role);
+        String novoRefresh = jwtService.gerarRefreshToken(email, role);
 
         return new RefreshResponseDTO(novoAccess, novoRefresh);
     }

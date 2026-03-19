@@ -6,13 +6,14 @@ import com.august.ScraperCar.repository.SharedJobRepository;
 import com.august.ScraperCar.service.ad.AdProcessorService;
 import com.august.ScraperCar.service.scraper.ScrapingService;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-
+@DisallowConcurrentExecution
 @Component
 @Slf4j
 public class JobExecutor implements Job {

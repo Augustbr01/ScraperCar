@@ -1,8 +1,6 @@
 package com.august.ScraperCar.config;
 
 import com.august.ScraperCar.service.authentication.JwtService;
-import com.august.ScraperCar.service.authentication.UserDetailServiceImpl;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,18 +48,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     && SecurityContextHolder.getContext().getAuthentication() == null
                     && jwtService.isTokenValido(token, email)) {
 
+                String role = jwtService.extrairRole(token);
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         email,
                         token,
-                        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-        } catch (ExpiredJwtException e) {
-            // Token expirado → não autentica → Security retorna 401
-        } catch (Exception e) {
-            // Token malformado/inválido → mesma coisa
+        } catch (Exception _) {
         }
 
         chain.doFilter(request, response);

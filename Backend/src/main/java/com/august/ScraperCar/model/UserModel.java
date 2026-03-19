@@ -34,5 +34,8 @@ public class UserModel {
     @Column(nullable = false)
     private String senha;
 
+    @Column(nullable = false)
+    private String role = "USER";
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }
