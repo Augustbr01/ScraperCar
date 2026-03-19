@@ -2,6 +2,7 @@ package com.august.ScraperCar.service;
 
 import com.august.ScraperCar.dto.alerts.request.AlertRequestDTO;
 import com.august.ScraperCar.dto.alerts.response.AlertResponseDTO;
+import com.august.ScraperCar.dto.alerts.response.UserAlertResponseDTO;
 import com.august.ScraperCar.dto.scraper.ScraperResult;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.*;
@@ -16,6 +17,7 @@ import org.quartz.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.quartz.SchedulerException;
+
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -125,7 +127,6 @@ public class AlertsService {
                     .build();
 
             // CronScheduleBuilder: slots fixos no relógio (ex: 12:00, 12:30, 13:00...)
-            // ao invés de "X minutos após a criação"
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity("trigger-" + savedJob.getId(), "scraper")
                     .forJob(jobDetail)
@@ -258,5 +259,31 @@ public class AlertsService {
 
         String status = alerta.getAtivo() ? "ativado" : "pausado";
         return ResponseEntity.ok("Alerta " + status + " com sucesso!");
+    }
+
+    @Transactional
+    public List<UserAlertResponseDTO> listarAlertas(String token) {
+        String email = jwtService.extrairEmail(token);
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Usuario nao encontrado!", 404));
+
+        return userAlertRepository.findByUser_Id(user.getId())
+                .stream()
+                .map(alerta -> new UserAlertResponseDTO(
+                        alerta.getId(),
+                        alerta.getJob().getModelo(),
+                        alerta.getJob().getVersao(),
+                        alerta.getJob().getMarca().getNome(),
+                        alerta.getJob().getValorinicio(),
+                        alerta.getJob().getValorfim(),
+                        alerta.getJob().getAnoMin(),
+                        alerta.getJob().getAnoMax(),
+                        alerta.getJob().getKminicio(),
+                        alerta.getJob().getKmfim(),
+                        alerta.getIntervaloAlerta(),
+                        alerta.getAtivo(),
+                        alerta.getCreatedAt()
+                ))
+                .toList();
     }
 }

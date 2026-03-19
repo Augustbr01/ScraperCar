@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface UserAlertRepository extends JpaRepository<UserAlerts, Long> {
     boolean existsByUser_IdAndJob_VeiculoKey(UUID userId, String veiculoKey);
     List<UserAlerts> findByJob_veiculoKey(String veiculoKey);
+    List<UserAlerts> findByUser_Id(UUID userId);
 }
 
 
