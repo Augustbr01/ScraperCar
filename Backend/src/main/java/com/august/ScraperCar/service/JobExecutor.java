@@ -22,7 +22,7 @@ public class JobExecutor implements Job {
         try {
             Long jobId = context.getMergedJobDataMap().getLong("jobId");
 
-            Thread.sleep((jobId % 10) * 1000L);
+            Thread.sleep((jobId % 30) * 1000L);
 
             log.info("\uD83D\uDE80 SearchJob executando jobId: " + jobId);
 

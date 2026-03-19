@@ -41,7 +41,13 @@ public class AdProcessorService {
                 continue;
             }
             for (AnuncioDTO anuncio : result.anuncios()) {
+
                 processarAnuncio(alerta, anuncio);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         System.out.println("Processar fim!");
