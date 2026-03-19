@@ -253,6 +253,23 @@ public class AlertsService {
         alerta.setAtivo(!alerta.getAtivo());
         userAlertRepository.save(alerta);
 
+        String veiculokey = alerta.getJob().getVeiculoKey();
+        JobKey jobKey = JobKey.jobKey("job-" + alerta.getJob().getId(), "scraper");
+
+        try {
+            boolean algumAtivoExiste = userAlertRepository.existsByJob_VeiculoKeyAndAtivoTrue(veiculokey);
+
+            if (!algumAtivoExiste) {
+                scheduler.pauseJob(jobKey);
+                System.out.println("LOG: Job pausado pois todos os alertas estão inativos");
+            } else {
+                scheduler.resumeJob(jobKey);
+                System.out.println("LOG: Job retomado pois há alertas ativos");
+            }
+        } catch (SchedulerException e) {
+            throw new BusinessException("Erro ao pausar/retomar job: " + e.getMessage(), 500);
+        }
+
         String status = alerta.getAtivo() ? "ativado" : "pausado";
         return ResponseEntity.ok("Alerta " + status + " com sucesso!");
     }

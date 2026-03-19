@@ -83,7 +83,7 @@ public class UserService {
                     new UsernamePasswordAuthenticationToken(dto.email(), senhacompepper)
             );
         } catch (Exception e) {
-            throw new BusinessException("Email ou senha invalido!", 409);
+            throw new BusinessException("Email ou senha invalido!", 401);
         }
 
 

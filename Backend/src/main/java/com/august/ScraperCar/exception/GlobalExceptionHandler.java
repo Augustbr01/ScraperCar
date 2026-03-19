@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<String> handleBusiness(BusinessException ex) {
-        return ResponseEntity.status(ex.getStatusCode()).body(ex.getMessage());
+    public ResponseEntity<ErrorResponseDTO> handleBusiness(BusinessException ex) {
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(new ErrorResponseDTO(ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

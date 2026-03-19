@@ -8,7 +8,6 @@ import com.august.ScraperCar.dto.authentication.response.RefreshResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
-import com.august.ScraperCar.service.authentication.RateLimiter;
 import com.august.ScraperCar.service.authentication.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ public class AuthController {
 
     private final UserService userService;
 
-    public AuthController(UserService userService, RateLimiter rateLimiter) {
+    public AuthController(UserService userService) {
         this.userService = userService;
     }
 
@@ -59,7 +58,12 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponseDTO> refresh(HttpServletRequest request, HttpServletResponse response) {
 
-        String refreshToken = Arrays.stream(request.getCookies())
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new BusinessException("Refresh Token não encontrado", 401);
+        }
+
+        String refreshToken = Arrays.stream(cookies)
                 .filter(c -> c.getName().equals("refreshToken"))
                 .findFirst()
                 .map(Cookie::getValue)
@@ -89,13 +93,5 @@ public class AuthController {
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(30 * 24 * 60 * 60);
         return cookie;
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }
