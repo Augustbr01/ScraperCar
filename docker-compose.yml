@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  springboot:
+    build: ./Backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
+      PEPPER: ${PEPPER}
+      WPP_URL: http://wppconnect:21465
+      WPP_SESSION: ${WPP_SESSION}
+      WPP_TOKEN: ${WPP_TOKEN}
+      SCRAPER_URL: http://scraper:8000
+    depends_on:
+      - postgres
+      - scraper
+      - wppconnect
+
+  scraper:
+    build: ./worker
+    ports:
+      - "8000:8000"
+
+  wppconnect:
+    build:
+      context: ./wppconnect-server
+    volumes:
+      - ./wppconnect-server/config.ts:/usr/src/wpp-server/config.ts
+      - wpp_tokens:/usr/src/wpp-server/tokens
+    ports:
+      - "21465:21465"
+
+volumes:
+  postgres_data:
+  wpp_tokens:
