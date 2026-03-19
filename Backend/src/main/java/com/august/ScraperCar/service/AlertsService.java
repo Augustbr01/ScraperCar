@@ -4,18 +4,13 @@ import com.august.ScraperCar.dto.alerts.request.AlertRequestDTO;
 import com.august.ScraperCar.dto.alerts.response.AlertResponseDTO;
 import com.august.ScraperCar.dto.scraper.ScraperResult;
 import com.august.ScraperCar.exception.BusinessException;
-import com.august.ScraperCar.model.MarcasModel;
-import com.august.ScraperCar.model.SharedSearchJobModel;
-import com.august.ScraperCar.model.UserAlerts;
-import com.august.ScraperCar.model.UserModel;
-import com.august.ScraperCar.repository.MarcaRepository;
-import com.august.ScraperCar.repository.SharedJobRepository;
-import com.august.ScraperCar.repository.UserAlertRepository;
-import com.august.ScraperCar.repository.UserRepository;
+import com.august.ScraperCar.model.*;
+import com.august.ScraperCar.repository.*;
 import com.august.ScraperCar.service.ad.AdProcessorService;
 import com.august.ScraperCar.service.authentication.JwtService;
 import com.august.ScraperCar.service.scraper.ScrapingService;
 import com.google.common.hash.Hashing;
+import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 import org.quartz.*;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.quartz.SchedulerException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,6 +32,7 @@ public class AlertsService {
     public final Scheduler scheduler;
     public final ScrapingService scrapingService;
     public final AdProcessorService adProcessorService;
+    public final SentAnnouncementRepository sentRepo;
 
 
     public AlertsService(UserRepository userRepository,
@@ -45,7 +42,8 @@ public class AlertsService {
                          JwtService jwtService,
                          Scheduler scheduler,
                          ScrapingService scrapingService,
-                         AdProcessorService adProcessorService
+                         AdProcessorService adProcessorService,
+                         SentAnnouncementRepository sentRepo
     ) {
         this.userRepository = userRepository;
         this.sharedJobRepository = sharedJobRepository;
@@ -55,6 +53,7 @@ public class AlertsService {
         this.scheduler = scheduler;
         this.scrapingService = scrapingService;
         this.adProcessorService = adProcessorService;
+        this.sentRepo = sentRepo;
     }
 
 
@@ -147,7 +146,11 @@ public class AlertsService {
     }
 
 
-    private static @NonNull SharedSearchJobModel getJob(AlertRequestDTO dto, String veiculokey, Optional<MarcasModel> marca) {
+    private static @NonNull SharedSearchJobModel getJob(AlertRequestDTO dto, String veiculokey, Optional<MarcasModel> marca)
+    {
+        if (marca.isEmpty()) {
+            throw new BusinessException("Erro de marca", 404);
+        }
         SharedSearchJobModel newjob = new SharedSearchJobModel();
         newjob.setVeiculoKey(veiculokey);
         newjob.setModelo(dto.getModelo());
@@ -191,5 +194,48 @@ public class AlertsService {
             return "0 0 0/" + horas + " * * ?";
         }
         return "0 0/" + intervaloMinutos + " * * * ?";
+    }
+
+    @Transactional
+    public ResponseEntity<String> excluirAlerta(Long userAlertId, String token) {
+        String email = jwtService.extrairEmail(token);
+        Optional<UserModel> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new BusinessException("Usuário não encontrado", 401);
+        }
+
+        UserAlerts alerta = userAlertRepository.findById(userAlertId)
+                .orElseThrow(() -> new BusinessException("Alerta não encontrado!", 404));
+
+        if (!alerta.getUser().getId().equals(user.get().getId())) {
+            throw new BusinessException("Sem permissã para excluir este alerta!", 403);
+        }
+
+        SharedSearchJobModel job = alerta.getJob();
+        List<UserAlerts> alertasDoJob = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey());
+
+        sentRepo.deleteByUserAlertsId(alerta.getId());
+        System.out.println("LOG: SentAnnouncements excluídos");
+
+        userAlertRepository.delete(alerta);
+        System.out.println("User Alert excluido com sucesso!");
+
+        if (alertasDoJob.size() == 1) {
+            TriggerKey triggerKey = TriggerKey.triggerKey("trigger-" + job.getId(), "scraper");
+            JobKey jobKey = JobKey.jobKey("job-" + job.getId(), "scraper");
+
+            try {
+                scheduler.unscheduleJob(triggerKey);
+                scheduler.deleteJob(jobKey);
+                System.out.println("LOG: Job removido do Quartz");
+            } catch (SchedulerException e) {
+                throw new BusinessException("Erro ao remover job do Quartz: " + e.getMessage(), 500);
+            }
+
+            sharedJobRepository.delete(job);
+            System.out.println("LOG: Job removido do banco");
+        }
+
+        return ResponseEntity.ok("Alerta excluido com sucesso!");
     }
 }

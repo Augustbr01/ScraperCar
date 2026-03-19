@@ -21,4 +21,10 @@ public class AlertController {
         String token = authHeader.replace("Bearer ", "");
         return alertsService.criarAlerta(dto, token);
     }
+
+    @DeleteMapping("/{userAlertId}")
+    public ResponseEntity<String> excluirAlerta(@PathVariable Long userAlertId, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        return alertsService.excluirAlerta(userAlertId, token);
+    }
 }
