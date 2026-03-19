@@ -238,4 +238,25 @@ public class AlertsService {
 
         return ResponseEntity.ok("Alerta excluido com sucesso!");
     }
+
+    public ResponseEntity<String> toggleUserAlert(Long userAlertId, String token) {
+        String email = jwtService.extrairEmail(token);
+        Optional<UserModel> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new BusinessException("Usuario nao encontrado!", 404);
+        }
+
+        UserAlerts alerta = userAlertRepository.findById(userAlertId)
+                .orElseThrow(() -> new BusinessException("Alerta não encontrado!", 404));
+
+        if (!alerta.getUser().getId().equals(user.get().getId())) {
+            throw new BusinessException("Sem permissão para alterar este alerta!", 403);
+        }
+
+        alerta.setAtivo(!alerta.getAtivo());
+        userAlertRepository.save(alerta);
+
+        String status = alerta.getAtivo() ? "ativado" : "pausado";
+        return ResponseEntity.ok("Alerta " + status + " com sucesso!");
+    }
 }

@@ -27,4 +27,10 @@ public class AlertController {
         String token = authHeader.replace("Bearer ", "");
         return alertsService.excluirAlerta(userAlertId, token);
     }
+
+    @PatchMapping("/toggle/{userAlertId}")
+    public ResponseEntity<String> toggleAlerta(@PathVariable Long userAlertId, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        return alertsService.toggleUserAlert(userAlertId, token);
+    }
 }

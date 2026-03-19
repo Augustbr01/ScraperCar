@@ -36,6 +36,10 @@ public class AdProcessorService {
         List<UserAlerts> alertas = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey());
 
         for  (UserAlerts alerta : alertas) {
+            if (!alerta.getAtivo()) {
+                System.out.println("Alerta pausado, pulando usuario: " + alerta.getUser().getEmail());
+                continue;
+            }
             for (AnuncioDTO anuncio : result.anuncios()) {
                 processarAnuncio(alerta, anuncio);
             }
