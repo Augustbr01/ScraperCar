@@ -23,17 +23,16 @@ public class QuartzConfig {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
         factory.setDataSource(dataSource);
         factory.setConfigLocation(new ClassPathResource("quartz.properties"));
-
         factory.setSchedulerContextAsMap(
                 Map.of("applicationContext", applicationContext)
         );
-
         factory.setOverwriteExistingJobs(true);
 
         Properties props = new Properties();
         props.put("org.quartz.jobStore.driverDelegateClass",
                 "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
         factory.setQuartzProperties(props);
+
         return factory;
     }
 }
