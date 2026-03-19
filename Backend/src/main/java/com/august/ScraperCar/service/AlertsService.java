@@ -2,6 +2,7 @@ package com.august.ScraperCar.service;
 
 import com.august.ScraperCar.dto.alerts.request.AlertRequestDTO;
 import com.august.ScraperCar.dto.alerts.response.AlertResponseDTO;
+import com.august.ScraperCar.dto.scraper.ScraperResult;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.MarcasModel;
 import com.august.ScraperCar.model.SharedSearchJobModel;
@@ -11,7 +12,9 @@ import com.august.ScraperCar.repository.MarcaRepository;
 import com.august.ScraperCar.repository.SharedJobRepository;
 import com.august.ScraperCar.repository.UserAlertRepository;
 import com.august.ScraperCar.repository.UserRepository;
+import com.august.ScraperCar.service.ad.AdProcessorService;
 import com.august.ScraperCar.service.authentication.JwtService;
+import com.august.ScraperCar.service.scraper.ScrapingService;
 import com.google.common.hash.Hashing;
 import org.jspecify.annotations.NonNull;
 import org.quartz.*;
@@ -31,6 +34,8 @@ public class AlertsService {
     public final MarcaRepository marcaRepository;
     public final JwtService jwtService;
     public final Scheduler scheduler;
+    public final ScrapingService scrapingService;
+    public final AdProcessorService adProcessorService;
 
 
     public AlertsService(UserRepository userRepository,
@@ -38,14 +43,18 @@ public class AlertsService {
                          UserAlertRepository userAlertRepository,
                          MarcaRepository marcaRepository,
                          JwtService jwtService,
-                         Scheduler scheduler
+                         Scheduler scheduler,
+                         ScrapingService scrapingService,
+                         AdProcessorService adProcessorService
     ) {
         this.userRepository = userRepository;
         this.sharedJobRepository = sharedJobRepository;
         this.userAlertRepository = userAlertRepository;
-        this.marcaRepository = marcaRepository; 
+        this.marcaRepository = marcaRepository;
         this.jwtService = jwtService;
         this.scheduler = scheduler;
+        this.scrapingService = scrapingService;
+        this.adProcessorService = adProcessorService;
     }
 
 
@@ -83,6 +92,19 @@ public class AlertsService {
                 job.get().setIntervalo(intervaloAlerta);
                 sharedJobRepository.save(job.get());
                 System.out.println("LOG: Intervalo menor detectado e salvo");
+
+                // Reagenda o trigger no Quartz com o novo intervalo menor
+                TriggerKey triggerKey = TriggerKey.triggerKey("trigger-" + job.get().getId(), "scraper");
+                Trigger novoTrigger = TriggerBuilder.newTrigger()
+                        .withIdentity(triggerKey)
+                        .withSchedule(CronScheduleBuilder.cronSchedule(buildCron(intervaloAlerta)))
+                        .build();
+                try {
+                    scheduler.rescheduleJob(triggerKey, novoTrigger);
+                    System.out.println("LOG: Trigger reagendado para " + intervaloAlerta + " minutos");
+                } catch (SchedulerException e) {
+                    throw new BusinessException("Erro ao reagendar job: " + e.getMessage(), 500);
+                }
             }
 
             criarUserAlert(dto, userID, job.get());
@@ -98,16 +120,18 @@ public class AlertsService {
             SharedSearchJobModel savedJob = sharedJobRepository.save(newjob);
 
             JobDetail jobDetail = JobBuilder.newJob(JobExecutor.class)
-                            .withIdentity("job-" + savedJob.getId(), "scraper")
-                                    .usingJobData("jobId", savedJob.getId())
-                                            .build();
+                    .withIdentity("job-" + savedJob.getId(), "scraper")
+                    .usingJobData("jobId", savedJob.getId())
+                    .storeDurably()
+                    .build();
 
+            // CronScheduleBuilder: slots fixos no relógio (ex: 12:00, 12:30, 13:00...)
+            // ao invés de "X minutos após a criação"
             Trigger trigger = TriggerBuilder.newTrigger()
-                            .withIdentity("trigger-" + savedJob.getId(), "scraper")
-                                    .forJob(jobDetail)
-                                            .withSchedule(SimpleScheduleBuilder
-                                                    .repeatMinutelyForever(savedJob.getIntervalo()))
-                                                    .build();
+                    .withIdentity("trigger-" + savedJob.getId(), "scraper")
+                    .forJob(jobDetail)
+                    .withSchedule(CronScheduleBuilder.cronSchedule(buildCron(savedJob.getIntervalo())))
+                    .build();
 
             try {
                 scheduler.scheduleJob(jobDetail, trigger);
@@ -124,7 +148,6 @@ public class AlertsService {
 
 
     private static @NonNull SharedSearchJobModel getJob(AlertRequestDTO dto, String veiculokey, Optional<MarcasModel> marca) {
-
         SharedSearchJobModel newjob = new SharedSearchJobModel();
         newjob.setVeiculoKey(veiculokey);
         newjob.setModelo(dto.getModelo());
@@ -137,7 +160,6 @@ public class AlertsService {
         newjob.setKminicio(dto.getKminicio());
         newjob.setKmfim(dto.getKmfim());
         newjob.setAtivo(true);
-
         newjob.setMarca(marca.get());
         System.out.println("LOG: Job criado");
         return newjob;
@@ -157,5 +179,17 @@ public class AlertsService {
         alerta.setAtivo(true);
         userAlertRepository.save(alerta);
         System.out.println("LOG: UserAlert criado!");
+
+        ScraperResult result = scrapingService.getAnuncios(job);
+        adProcessorService.processar(job, result);
+        System.out.println("✅ Scrape inicial: " + result.anuncios().size() + " anúncios processados");
+    }
+
+    private String buildCron(int intervaloMinutos) {
+        if (intervaloMinutos >= 60) {
+            int horas = intervaloMinutos / 60;
+            return "0 0 0/" + horas + " * * ?";
+        }
+        return "0 0/" + intervaloMinutos + " * * * ?";
     }
 }

@@ -26,6 +26,7 @@ public class WebClientConfig {
         return WebClient.builder()
                 .baseUrl("http://localhost:21465")
                 .defaultHeader("Content-Type", "application/json")
+                .codecs(config -> config.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
                 .build();
     }
 }

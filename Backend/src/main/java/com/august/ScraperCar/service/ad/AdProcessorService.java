@@ -32,7 +32,6 @@ public class AdProcessorService {
 
     public void processar(SharedSearchJobModel job, ScraperResult result) {
         System.out.println("Processar iniciou!");
-        if (!result.isFreshScrape()) return;
 
         List<UserAlerts> alertas = userAlertRepository.findByJob_veiculoKey(job.getVeiculoKey());
 
@@ -48,33 +47,62 @@ public class AdProcessorService {
         System.out.println("Processar anuncio inicio");
         Optional<SentAnnouncementModel> sent = sentAnnouncementRepository.findByUserAlertsAndAnuncioId(alerta, anuncio.getId());
 
+        if (sent.isPresent() && !deveNotificar(sent.get(), alerta.getIntervaloAlerta())) {  // Assuma campo userAlert.intervaloMinutos
+            System.out.println("Pular notificação: tempo insuficiente");
+            return;
+        }
+
         if (sent.isEmpty()) {
             whatsAppService.enviarAlerta(alerta.getUser(), anuncio);
             salvarSent(alerta, anuncio);
+            atualizarLastNotified(alerta);
         } else if (precoMudou(sent.get().getUltimoPreco(), anuncio)) {
             whatsAppService.enviarAlertaPreco(alerta.getUser(), anuncio, sent.get().getUltimoPreco());
+
             alterarSentPreco(sent.get(), anuncio);
+            atualizarLastNotified(alerta);
         }
         System.out.println("Processar anuncio fim");
     }
 
+    private boolean deveNotificar(SentAnnouncementModel sent, int intervaloMinutos) {
+        if (sent.getSentAt() == null) return true;
+
+        // Slot global: múltiplo fixo desde meia-noite (13:00, 13:30, 14:00...)
+        LocalDateTime agora = LocalDateTime.now();
+        long minutosHoje = agora.getHour() * 60L + agora.getMinute();
+        long slotAtualMinutos = (minutosHoje / intervaloMinutos) * intervaloMinutos;
+        LocalDateTime slotAtual = agora.withHour(0).withMinute(0).withSecond(0)
+                .plusMinutes(slotAtualMinutos);
+
+        // Deve notificar se última foi antes deste slot
+        return sent.getSentAt().isBefore(slotAtual);
+    }
+
+
     private void salvarSent(UserAlerts alerta, AnuncioDTO anuncio) {
-        System.out.println("Salvar SENT!");
         SentAnnouncementModel sent = new SentAnnouncementModel();
         sent.setUserAlerts(alerta);
         sent.setAnuncioId(anuncio.getId());
         sent.setUltimoPreco(anuncio.getPreco());
+        sent.setSentAt(LocalDateTime.now());  // NOVO
         sentAnnouncementRepository.save(sent);
     }
 
     private void alterarSentPreco(SentAnnouncementModel sent, AnuncioDTO anuncio) {
         sent.setUltimoPreco(anuncio.getPreco());
         sent.setPrecoAtualizadoEm(LocalDateTime.now());
+        sent.setSentAt(LocalDateTime.now());  // NOVO
         sentAnnouncementRepository.save(sent);
     }
 
     private boolean precoMudou(BigDecimal preco, AnuncioDTO anuncio) {
         if (preco == null || anuncio.getPreco() == null) return false;
         return preco.compareTo(anuncio.getPreco()) != 0;
+    }
+
+    private void atualizarLastNotified(UserAlerts alerta) {
+        alerta.setLastNotifiedAt(LocalDateTime.now());
+        userAlertRepository.save(alerta);
     }
 }

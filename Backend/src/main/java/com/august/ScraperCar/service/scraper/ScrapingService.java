@@ -64,7 +64,7 @@ public class ScrapingService {
 
     private boolean isCacheExpirado(ScrapeCacheModel cache, int intervalo) {
         return Duration.between(cache.getScrapedAt(), LocalDateTime.now())
-                .compareTo(Duration.ofMinutes(intervalo)) > 0;
+                .compareTo(Duration.ofMinutes(intervalo)) >= 0;
     }
 
     private void saveCache(String veiculoKey, ScraperResponse scraperResponse) {
