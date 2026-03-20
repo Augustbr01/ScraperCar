@@ -17,17 +17,17 @@ services:
       - "8080:8080"
     environment:
       TZ: America/Campo_Grande
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       REFRESH_EXPIRATION: ${REFRESH_EXPIRATION}
       PEPPER: ${PEPPER}
-      WPP_URL: http://wppconnect:21465
+      WPP_URL: ${WPP_URL}
       WPP_SESSION: ${WPP_SESSION}
       WPP_TOKEN: ${WPP_TOKEN}
-      SCRAPER_URL: http://scraper:8000
+      SCRAPER_URL: ${SCRAPER_URL}
     depends_on:
       - postgres
       - scraper
