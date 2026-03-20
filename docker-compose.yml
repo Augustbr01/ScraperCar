@@ -1,18 +1,22 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:latest
+    ports:
+      - "5433:5432"
     environment:
+      TZ: America/Campo_Grande
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
   springboot:
     build: ./Backend
     ports:
       - "8080:8080"
     environment:
+      TZ: America/Campo_Grande
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -39,7 +43,8 @@ services:
       context: ./wppconnect-server
     volumes:
       - ./wppconnect-server/config.ts:/usr/src/wpp-server/config.ts
-      - wpp_tokens:/usr/src/wpp-server/tokens
+      - ./wppconnect-server/tokens:/usr/src/wpp-server/tokens
+      - ./wppconnect-server/userDataDir:/usr/src/wpp-server/userDataDir
     ports:
       - "21465:21465"
 

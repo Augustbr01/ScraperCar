@@ -6,6 +6,10 @@ Backend/application-test.properties
 Backend/logs/
 Backend/.mvn/wrapper/maven-wrapper.jar
 
+Worker/venv
+Worker/__pycache__
+
+
 # Global
 .DS_Store
 .env
@@ -16,3 +20,4 @@ target/
 
 /Backend/HELP.md
 /.ai/mcp/mcp.json
+__pycache__/index.cpython-314.pyc

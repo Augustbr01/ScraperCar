@@ -12,7 +12,8 @@ application-local.properties
 src/main/resources/application-local.properties
 
 # Pasta teste (que você quer sumir)
-src/main/java/com/august/ScraperCar/controller/test/
+src/main/java/com/august/ScraperCar/controller/debug/
+
 
 # Logs
 *.log
