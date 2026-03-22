@@ -32,7 +32,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/cadastro", "/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers("/auth/cadastro", "/auth/login", "/auth/refresh", "/webhook/**", "/verify/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
