@@ -9,17 +9,29 @@ import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.UserModel;
+import com.august.ScraperCar.model.VerifyCodeModel;
 import com.august.ScraperCar.repository.UserRepository;
+import com.august.ScraperCar.repository.VerifyCodeRepository;
+import com.august.ScraperCar.service.scraper.wpp.VerifyService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
 public class UserService {
+
+    private final VerifyService verifyService;
+    private final VerifyCodeRepository verifyCodeRepository;
+
+    @Value("${WPP_NUMERO}")
+    private String NUMERODOBOT;
+
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,14 +44,16 @@ public class UserService {
             PasswordEncoder passwordEncoder,
             SecurityConfig securityConfig,
             AuthenticationManager authenticationManager,
-            JwtService jwtService
-    )
+            JwtService jwtService,
+            VerifyService verifyService, VerifyCodeRepository verifyCodeRepository)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.securityConfig = securityConfig;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.verifyService = verifyService;
+        this.verifyCodeRepository = verifyCodeRepository;
     }
 
     public UserCreateResponseDTO cadastro(UserCreateRequestDTO dto) {
@@ -62,13 +76,23 @@ public class UserService {
         );
         newUser.setEmail(dto.getEmail());
         newUser.setTelefone(dto.getTelefone());
-        userRepository.save(newUser);
+        UserModel savedUser = userRepository.save(newUser);
+
+        String codigo = verifyService.gerarCodigo();
+
+        VerifyCodeModel verifyCodeModel = new VerifyCodeModel();
+        verifyCodeModel.setCodigo(codigo);
+        verifyCodeModel.setUser(savedUser);
+        verifyCodeModel.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        verifyCodeRepository.save(verifyCodeModel);
 
         return new UserCreateResponseDTO(
                 newUser.getId(),
                 newUser.getNome(),
                 newUser.getEmail(),
-                newUser.getTelefone()
+                newUser.getTelefone(),
+                codigo,
+                NUMERODOBOT
         );
     }
 

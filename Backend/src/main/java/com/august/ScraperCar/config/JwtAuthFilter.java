@@ -1,5 +1,7 @@
 package com.august.ScraperCar.config;
 
+import com.august.ScraperCar.model.UserModel;
+import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.service.authentication.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,9 +22,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -47,6 +51,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     && !email.startsWith("REFRESH_")
                     && SecurityContextHolder.getContext().getAuthentication() == null
                     && jwtService.isTokenValido(token, email)) {
+
+                UserModel user = userRepository.findByEmail(email).orElse(null);
+                if (user != null && !user.getVerificado()) {
+                    response.setStatus(403);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"error\":\"Número não verificado\"}");
+                    return;
+                }
 
                 String role = jwtService.extrairRole(token);
 

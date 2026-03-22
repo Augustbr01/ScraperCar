@@ -1,6 +1,7 @@
-package com.august.ScraperCar.service;
+package com.august.ScraperCar.service.scraper.wpp;
 
 import com.august.ScraperCar.dto.scraper.AnuncioDTO;
+import com.august.ScraperCar.dto.wpp.ContactDTO;
 import com.august.ScraperCar.dto.wpp.WppMessageRequest;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.UserModel;
@@ -131,6 +132,26 @@ public class WhatsAppService {
                 .bodyToMono(String.class)
                 .block();
         System.out.println("post saiu!");
+    }
+
+    public ContactDTO buscarContato(String lid) {
+        System.out.println("Buscando contado!");
+        if (lid == null) {
+            throw new BusinessException("Lid inexistente", 401);
+        }
+
+        ContactDTO contact = wppClient.get()
+                .uri("/api/" + session + "/contact/pn-lid/" + lid)
+                .header("Authorization", "Bearer " + tokenWPP)
+                .header("Content-Type", "application/json")
+                .retrieve()
+                .bodyToMono(ContactDTO.class)
+                .block();
+
+        assert contact != null;
+
+        return contact;
+
     }
 
 }

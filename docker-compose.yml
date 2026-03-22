@@ -28,6 +28,7 @@ services:
       WPP_SESSION: ${WPP_SESSION}
       WPP_TOKEN: ${WPP_TOKEN}
       SCRAPER_URL: ${SCRAPER_URL}
+      WPP_NUMERO: ${WPP_NUMERO}
     depends_on:
       - postgres
       - scraper
@@ -42,7 +43,7 @@ services:
     build:
       context: ./wppconnect-server
     volumes:
-      - ./wppconnect-server/config.ts:/usr/src/wpp-server/config.ts
+      - ./wppconnect-server/dist/config.js:/usr/src/wpp-server/dist/config.js
       - ./wppconnect-server/tokens:/usr/src/wpp-server/tokens
       - ./wppconnect-server/userDataDir:/usr/src/wpp-server/userDataDir
     ports:
