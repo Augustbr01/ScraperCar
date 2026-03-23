@@ -32,7 +32,6 @@ public class UserService {
     @Value("${WPP_NUMERO}")
     private String NUMERODOBOT;
 
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SecurityConfig securityConfig;

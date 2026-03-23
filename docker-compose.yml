@@ -29,6 +29,8 @@ services:
       WPP_TOKEN: ${WPP_TOKEN}
       SCRAPER_URL: ${SCRAPER_URL}
       WPP_NUMERO: ${WPP_NUMERO}
+      RESEND_TOKEN: ${RESEND_TOKEN}
+      URL_FRONTEND: ${URL_FRONTEND}
     depends_on:
       - postgres
       - scraper

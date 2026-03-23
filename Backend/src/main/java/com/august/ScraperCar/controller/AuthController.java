@@ -1,14 +1,13 @@
 package com.august.ScraperCar.controller;
 
 
-import com.august.ScraperCar.dto.authentication.request.RefreshRequestDTO;
-import com.august.ScraperCar.dto.authentication.request.UserCreateRequestDTO;
-import com.august.ScraperCar.dto.authentication.request.UserLoginRequestDTO;
+import com.august.ScraperCar.dto.authentication.request.*;
 import com.august.ScraperCar.dto.authentication.response.RefreshResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.service.authentication.UserService;
+import com.august.ScraperCar.service.authentication.ValidationTokenResetService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,9 +25,11 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final ValidationTokenResetService validationTokenResetService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, ValidationTokenResetService validationTokenResetService) {
         this.userService = userService;
+        this.validationTokenResetService = validationTokenResetService;
     }
 
     @PostMapping("/cadastro")
@@ -84,6 +85,21 @@ public class AuthController {
         response.addCookie(cookie);
 
         return ResponseEntity.ok(Map.of("message", "Logout realizado"));
+    }
+
+
+    @PostMapping("/resetsenha/solicitar")
+    public ResponseEntity<String> solicitarSenhaNova(@RequestBody SolicitarResetDTO dto) {
+        return ResponseEntity.ok().body(
+                (validationTokenResetService.solicitarReset(dto.email()))
+        );
+    }
+
+    @PostMapping("/resetsenha/confirmar")
+    public ResponseEntity<String> resetSenha(@RequestBody ConfirmarResetDTO dto) {
+        return ResponseEntity.ok().body(
+                (validationTokenResetService.resetarSenha(dto.token(), dto.senhanova()))
+        );
     }
 
     private Cookie criarRefreshCookie(String refreshToken) {
