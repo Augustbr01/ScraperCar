@@ -1,4 +1,4 @@
-package com.august.ScraperCar.service.scraper.wpp;
+package com.august.ScraperCar.service.wpp;
 
 import com.august.ScraperCar.dto.scraper.AnuncioDTO;
 import com.august.ScraperCar.dto.wpp.ContactDTO;
@@ -49,7 +49,6 @@ public class WhatsAppService {
                 false, false, false,
                 mensagem
         );
-
         post(body);
     }
 
@@ -93,6 +92,7 @@ public class WhatsAppService {
     }
 
     private String formatarPreco(BigDecimal preco) {
+        if (preco == null) return "A consultar";
         return NumberFormat.getCurrencyInstance(Locale.of("pt", "BR")).format(preco);
     }
 

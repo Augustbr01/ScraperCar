@@ -12,7 +12,7 @@ import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.model.VerifyCodeModel;
 import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.repository.VerifyCodeRepository;
-import com.august.ScraperCar.service.scraper.wpp.VerifyService;
+import com.august.ScraperCar.service.wpp.VerifyService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,4 +1,4 @@
-package com.august.ScraperCar.service.scraper.wpp;
+package com.august.ScraperCar.service.wpp;
 
 import com.august.ScraperCar.dto.wpp.ContactDTO;
 import com.august.ScraperCar.exception.BusinessException;

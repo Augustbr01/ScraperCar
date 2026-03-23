@@ -1,7 +1,7 @@
 package com.august.ScraperCar.controller;
 
 import com.august.ScraperCar.dto.wpp.WppWebHookDTO;
-import com.august.ScraperCar.service.scraper.wpp.VerifyService;
+import com.august.ScraperCar.service.wpp.VerifyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

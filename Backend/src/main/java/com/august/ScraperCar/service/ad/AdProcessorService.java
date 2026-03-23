@@ -7,7 +7,7 @@ import com.august.ScraperCar.model.SharedSearchJobModel;
 import com.august.ScraperCar.model.UserAlerts;
 import com.august.ScraperCar.repository.SentAnnouncementRepository;
 import com.august.ScraperCar.repository.UserAlertRepository;
-import com.august.ScraperCar.service.scraper.wpp.WhatsAppService;
+import com.august.ScraperCar.service.wpp.WhatsAppService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
