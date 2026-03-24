@@ -69,8 +69,9 @@ public class WhatsAppService {
         if (tipo.equals("alertaNovo")) {
             return "🚗 *Novo anúncio encontrado!*\n\n" +
                     "*" + a.getModelo() + "*\n" +
-                    "💰 " + formatarPreco(a.getPreco()) + "\n" +
+                    "🎨" + a.getCor() + " | " + "⛽ " + a.getCombustivel() + "\n" +
                     "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " km\n" +
+                    "💰 " + formatarPreco(a.getPreco()) + "\n" +
                     "📍 " + a.getCidade() + "\n" +
                     "🔗 " + a.getLink();
 
@@ -81,9 +82,10 @@ public class WhatsAppService {
 
             return seta + " *Alerta de preço!*\n\n" +
                     "*" + a.getModelo() + "*\n" +
-                    "De: ~~" + formatarPreco(precoAntigo) + "~~\n" +   // riscado no WhatsApp
+                    "De: ~~" + formatarPreco(precoAntigo) + "~~\n" +
                     "Para: *" + formatarPreco(a.getPreco()) + "*\n" +
                     "Variação: " + variacao + "\n\n" +
+                    "🎨" + a.getCor() + " | " + "⛽ " + a.getCombustivel() + "\n" +
                     "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " km\n" +
                     "📍 " + a.getCidade() + "\n" +
                     "🔗 " + a.getLink();
@@ -92,7 +94,7 @@ public class WhatsAppService {
     }
 
     private String formatarPreco(BigDecimal preco) {
-        if (preco == null) return "A consultar";
+        if (preco == null) return " A consultar";
         return NumberFormat.getCurrencyInstance(Locale.of("pt", "BR")).format(preco);
     }
 
@@ -102,7 +104,7 @@ public class WhatsAppService {
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(1, RoundingMode.HALF_UP);
         String sinal = diff.compareTo(BigDecimal.ZERO) < 0 ? "" : "+";
-        return sinal + percent + "% (R$ " + formatarPreco(diff.abs()) + ")";
+        return sinal + percent + "% " + formatarPreco(diff.abs()) + ")";
     }
 
     public void enviarMensagemTeste(String token, String mensagem) {
