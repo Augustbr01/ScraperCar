@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql
+    mem_limit: 200m
+    mem_reservation: 100m
 
   springboot:
     build: ./Backend
@@ -35,11 +37,15 @@ services:
       - postgres
       - scraper
       - wppconnect
+    mem_limit: 600m
+    mem_reservation: 450m
 
   scraper:
     build: ./worker
     ports:
       - "8000:8000"
+    mem_limit: 200m
+    mem_reservation: 80m
 
   wppconnect:
     build:
@@ -50,6 +56,8 @@ services:
       - ./wppconnect-server/userDataDir:/usr/src/wpp-server/userDataDir
     ports:
       - "21465:21465"
+    mem_limit: 700m
+    mem_reservation: 550m
 
 volumes:
   postgres_data:
