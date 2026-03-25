@@ -70,7 +70,7 @@ public class WhatsAppService {
             return "🚗 *Novo anúncio encontrado!*\n\n" +
                     "*" + a.getModelo() + "*\n" +
                     "🎨" + a.getCor() + " | " + "⛽ " + a.getCombustivel() + "\n" +
-                    "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " km\n" +
+                    "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " \n" +
                     "💰 " + formatarPreco(a.getPreco()) + "\n" +
                     "📍 " + a.getCidade() + "\n" +
                     "🔗 " + a.getLink();
@@ -86,7 +86,7 @@ public class WhatsAppService {
                     "Para: *" + formatarPreco(a.getPreco()) + "*\n" +
                     "Variação: " + variacao + "\n\n" +
                     "🎨" + a.getCor() + " | " + "⛽ " + a.getCombustivel() + "\n" +
-                    "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " km\n" +
+                    "📅 " + a.getAno() + " | 🛣️ " + a.getKm() + " \n" +
                     "📍 " + a.getCidade() + "\n" +
                     "🔗 " + a.getLink();
         }
