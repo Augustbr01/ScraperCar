@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+* {
+  font-family: "Manjari", sans-serif;
+}
+
+@layer utilities {
+  .liquid-glass {
+    @apply bg-white/10 backdrop-blur-[1px] border border-white/20 shadow-lg;
+  }
+
+  .blur-5xl { backdrop-filter: blur(80px); }
+  .blur-6xl { backdrop-filter: blur(120px); }
+  .blur-max { backdrop-filter: blur(200px); }
+
+  .manjari-thin {
+    font-family: "Manjari", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+  }
+
+  .manjari-regular {
+    font-family: "Manjari", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .manjari-bold {
+    font-family: "Manjari", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+}
+
+@layer base {
+  html {
+    --tw-backdrop-blur: 0px;
+  }
+}
