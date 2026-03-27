@@ -76,7 +76,7 @@ export function MobileMenu({ isOpen, onClose }) {
                     <h1 className="font-bold text-2xl text-center mb-8">Painel</h1>
 
                     <div className="flex gap-2 mb-8">
-                      <div className="w-3 h-3 bg-green-500 rounded-full self-center"></div>
+                      <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
                       <p className="mt-1">Monitorando</p>
                     </div>
 
@@ -202,15 +202,15 @@ export function MobileMenu({ isOpen, onClose }) {
                     <h2 className="text-white text-xl gap-4">Status</h2>
                     <div className="flex gap-3">
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
                         <span className="text-white leading-none relative top-0.5">Backend</span>
                       </div>
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
                         <span className="text-white leading-none relative top-0.5">Scraper</span>
                       </div>
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
                         <span className="text-white leading-none relative top-0.5">WPP API</span>
                       </div>
                     </div>

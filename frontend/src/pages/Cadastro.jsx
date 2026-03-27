@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Glass } from "../components/GlassContainer"
+import {cadastrarUsuario, verificarWhatsapp} from "../services/authService.js";
 
 export default function Cadastro() {
     const navigate = useNavigate()
@@ -25,20 +26,10 @@ export default function Cadastro() {
         setErro('')
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cadastro`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, telefone, senha })
-            })
-
-            if (!response.ok) throw new Error('Erro ao cadastrar.')
-
-            const data = await response.json()
-
+            const data = await cadastrarUsuario({ nome, email, telefone, senha })
             setCodigoVerificacao(data.codigoVerificacao)
             setNumeroBo(data.numeroBo)
             setValidandoNumero(true)
-
         } catch (err) {
             setErro(err.message || 'Erro inesperado. Tente novamente.')
         } finally {
@@ -51,14 +42,7 @@ export default function Cadastro() {
         setErro('')
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/verify/status?phone=${telefone}`)
-
-            if (!response.ok) throw new Error('Código ainda não confirmado.')
-
-            const data = await response.json()
-
-            if (!data.verificado) throw new Error('Código ainda não confirmado.')
-
+            await verificarWhatsapp(telefone)
             navigate('/dashboard')
         } catch (err) {
             setErro(err.message)
@@ -69,7 +53,7 @@ export default function Cadastro() {
 
     return (
         <div className='bg-[#0A0A0A] min-h-screen overflow-x-hidden relative flex items-center justify-center'>
-            <div className='absolute z-0 -top-40 -right-20 w-[500px] h-[500px] bg-[#00FFFF]/70 rounded-full blur-[200px]' />
+            <div className='absolute z-0 -top-40 -right-20 w-125 h-125 bg-[#00FFFF]/70 rounded-full blur-[200px]' />
 
             <div className="justify-items-center w-[90%] max-w-md h-auto">
                 <div className="mb-2 absolute flex top-20 items-center gap-3 self-start">
