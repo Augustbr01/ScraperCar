@@ -3,6 +3,7 @@ package com.august.ScraperCar.controller;
 
 import com.august.ScraperCar.dto.authentication.request.*;
 import com.august.ScraperCar.dto.authentication.response.RefreshResponseDTO;
+import com.august.ScraperCar.dto.authentication.response.ResetSenhaResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
@@ -33,15 +34,12 @@ public class AuthController {
     }
 
     @PostMapping("/cadastro")
-    public UserCreateResponseDTO cadastrar(@RequestBody UserCreateRequestDTO dto,
-                                           HttpServletRequest request) {
-
+    public UserCreateResponseDTO cadastrar(@RequestBody UserCreateRequestDTO dto) {
         return userService.cadastro(dto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO dto,
-                                                      HttpServletRequest request,
                                                       HttpServletResponse response
     ) {
 
@@ -89,14 +87,14 @@ public class AuthController {
 
 
     @PostMapping("/resetsenha/solicitar")
-    public ResponseEntity<String> solicitarSenhaNova(@RequestBody SolicitarResetDTO dto) {
+    public ResponseEntity<ResetSenhaResponseDTO> solicitarSenhaNova(@RequestBody SolicitarResetDTO dto) {
         return ResponseEntity.ok().body(
                 (validationTokenResetService.solicitarReset(dto.email()))
         );
     }
 
     @PostMapping("/resetsenha/confirmar")
-    public ResponseEntity<String> resetSenha(@RequestBody ConfirmarResetDTO dto) {
+    public ResponseEntity<ResetSenhaResponseDTO> resetSenha(@RequestBody ConfirmarResetDTO dto) {
         return ResponseEntity.ok().body(
                 (validationTokenResetService.resetarSenha(dto.token(), dto.senhanova()))
         );

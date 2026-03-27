@@ -1,6 +1,7 @@
 package com.august.ScraperCar.service.authentication;
 
 import com.august.ScraperCar.config.SecurityConfig;
+import com.august.ScraperCar.dto.authentication.response.ResetSenhaResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.TokenResetModel;
 import com.august.ScraperCar.model.UserModel;
@@ -43,7 +44,7 @@ public class ValidationTokenResetService {
     private String URL_FRONTEND;
 
 
-    public String solicitarReset(String email)  {
+    public ResetSenhaResponseDTO solicitarReset(String email)  {
 
         Resend resend = new Resend(RESEND_TOKEN);
 
@@ -70,7 +71,9 @@ public class ValidationTokenResetService {
             tokenResetRepository.save(tokenResetModel);
         }
 
-        String link = URL_FRONTEND + "/resetsenha?token=" + token;
+        String[] urls = URL_FRONTEND.split(",");
+
+        String link = urls[1] + "/resetsenha?token=" + token;
 
         CreateEmailOptions params = CreateEmailOptions.builder()
                 .from("noreply@scrapercar.augustdev.com.br")
@@ -87,10 +90,10 @@ public class ValidationTokenResetService {
             throw new BusinessException("Erro ao enviar email!", 500);
         }
 
-        return "Email de recuperação enviado!";
+        return new ResetSenhaResponseDTO("Email de recuperação enviado!");
     }
 
-    public String resetarSenha(String token, String senhanova) {
+    public ResetSenhaResponseDTO resetarSenha(String token, String senhanova) {
 
 
         String tokenLimpo = token.trim();
@@ -117,7 +120,7 @@ public class ValidationTokenResetService {
         System.out.println("Senha atualizada com sucesso!");
 
         tokenResetRepository.delete(tokenModel.get());
-        return "Senha atualizada com sucesso!";
+        return new ResetSenhaResponseDTO("Senha atualizada com sucesso!");
     }
 
     private String gerarTokenReset() {
