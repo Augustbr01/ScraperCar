@@ -21,3 +21,4 @@ target/
 /Backend/HELP.md
 /.ai/mcp/mcp.json
 __pycache__/index.cpython-314.pyc
+/package-lock.json
