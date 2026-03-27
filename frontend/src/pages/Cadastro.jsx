@@ -25,7 +25,7 @@ export default function Cadastro() {
         setErro('')
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/cadastro`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/cadastro`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nome, email, telefone, senha })

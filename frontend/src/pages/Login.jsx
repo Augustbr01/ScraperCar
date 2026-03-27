@@ -1,15 +1,32 @@
 import { useCallback, useState } from "react"
 import { Glass } from "../components/GlassContainer";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 
 function Login() {
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
+    const [error, setError] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
-    const handleSubmit = useCallback((e) => {
+    const { login } = useAuth()
+    const navigate = useNavigate()
+
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault()
-        console.log({email, senha })
-    }, [email, senha]);
+        setError('')
+        setIsLoading(true)
+
+        try {
+            await login({ email, senha })
+            navigate('/dashboard')
+        } catch {
+            setError('Email ou senha inválidos')
+        } finally {
+            setIsLoading(false)
+        }
+    }, [email, senha, login, navigate])
 
 
     return (
@@ -40,16 +57,44 @@ function Login() {
                             <div className="p-7 pt-13">
                                 <span className="flex justify-center text-white text-center font-bold text-3xl">Login</span>
                                 <form className="mt-10 grid" onSubmit={handleSubmit}>
-                                    <div className="w-full grid gap-4 mb-10">
-                                        <input className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                                        <input className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50" type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} />
-                                        <a className="w-[50%] justify-self-end flex" href="/resetsenha"><span className="w-full text-center text-[#C85BFF] text-sm ">Esqueci minha senha</span></a>
+                                    <div className="w-full grid gap-4 mb-6">
+                                        <input
+                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50"
+                                            placeholder="Email"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            disabled={isLoading}
+                                        />
+                                        <input
+                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50"
+                                            type="password"
+                                            placeholder="Senha"
+                                            value={senha}
+                                            onChange={(e) => setSenha(e.target.value)}
+                                            disabled={isLoading}
+                                        />
+                                        <a className="w-[50%] justify-self-end flex" href="/resetsenha">
+                                            <span className="w-full text-center text-[#C85BFF] text-sm">Esqueci minha senha</span>
+                                        </a>
                                     </div>
-                                    
-                                    
-                                    <button className="pt-3 h-11 justify-self-center text-white w-[50%] bg-[#AA00FF] rounded-full p-2 font-bold " type="submit">Entrar</button>
+
+                                    {/* Mensagem de erro */}
+                                    <div className="h-6 mb-4 flex items-center justify-center">
+                                        {error && (
+                                            <span className="text-red-400 text-sm text-center">{error}</span>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        className="pt-3 h-11 justify-self-center text-white w-[50%] bg-[#AA00FF] rounded-full p-2 font-bold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                        type="submit"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? 'Entrando...' : 'Entrar'}
+                                    </button>
                                 </form>
-                                <div className=" mt-10 grid justify-center gap-1">
+                                <div className="mt-10 grid justify-center gap-1">
                                     <span className="text-white">Ainda não tem uma conta?</span>
                                     <a className="text-[#C85BFF] justify-self-center" href="/cadastro">Criar Conta</a>
                                 </div>
