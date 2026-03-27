@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Logo from "../assets/react.svg";
 import { Glass } from "./GlassContainer";
 
 export function MobileMenu({ isOpen, onClose }) {

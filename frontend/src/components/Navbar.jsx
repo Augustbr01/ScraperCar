@@ -8,7 +8,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed top-5 w-full z-50">
+      <div className="fixed top-5 w-full z-50 transition-transform duration-300">
         <div className="mx-auto w-[90%]">
           <Glass
             cornerRadius="9999px"
@@ -33,8 +33,8 @@ export default function Navbar() {
 
               {/* Botão mobile */}
               <button onClick={() => setMenuNavbar(true)} className="cursor-pointer flex items-center lg:hidden">
-                <svg width="43" height="43" viewBox="0 0 43 43" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 29.9167H34.0833M9 20.9583H34.0833M9 12H34.0833" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg width="27" height="26" viewBox="0 0 27 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.92 0H7.74667C2.89333 0 0 2.80292 0 7.50458V18.3158C0 23.0304 2.89333 25.8333 7.74667 25.8333H18.9067C23.76 25.8333 26.6533 23.0304 26.6533 18.3288V7.50458C26.6667 2.80292 23.7733 0 18.92 0ZM20 19.6979H6.66667C6.12 19.6979 5.66667 19.2588 5.66667 18.7292C5.66667 18.1996 6.12 17.7604 6.66667 17.7604H20C20.5467 17.7604 21 18.1996 21 18.7292C21 19.2588 20.5467 19.6979 20 19.6979ZM20 13.8854H6.66667C6.12 13.8854 5.66667 13.4463 5.66667 12.9167C5.66667 12.3871 6.12 11.9479 6.66667 11.9479H20C20.5467 11.9479 21 12.3871 21 12.9167C21 13.4463 20.5467 13.8854 20 13.8854ZM20 8.07292H6.66667C6.12 8.07292 5.66667 7.63375 5.66667 7.10417C5.66667 6.57458 6.12 6.13542 6.66667 6.13542H20C20.5467 6.13542 21 6.57458 21 7.10417C21 7.63375 20.5467 8.07292 20 8.07292Z" fill="#E0E0E0"/>
                 </svg>
               </button>
 
