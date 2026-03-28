@@ -10,6 +10,12 @@ function PrivateRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" />
 }
 
+function CatchAll() {
+    const { isAuthenticated } = useAuth()
+    return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} />
+}
+
+
 export function AppRouter() {
     return (
         <BrowserRouter>
@@ -17,13 +23,10 @@ export function AppRouter() {
                 <Route path='/login' element={<Login />} />
                 <Route path='/cadastro' element={<Cadastro />} />
                 <Route path='/resetsenha' element={<ResetSenha />} />
-
                 <Route path="/dashboard" element={
-                    <PrivateRoute>
-                        <Dashboard />
-                    </PrivateRoute>
+                    <PrivateRoute><Dashboard /></PrivateRoute>
                 }/>
-                <Route path='*' element={<Navigate to="/dashboard" />} />
+                <Route path='*' element={<CatchAll />} />
             </Routes>
         </BrowserRouter>
     )

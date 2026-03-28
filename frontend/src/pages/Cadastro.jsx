@@ -30,7 +30,7 @@ export default function Cadastro() {
             setNumeroBo(data.numeroBo)
             setValidandoNumero(true)
         } catch (err) {
-            setErro(err.message || 'Erro inesperado. Tente novamente.')
+            setErro(err.response?.data?.message || err.message || 'Erro inesperado. Tente novamente.')
         } finally {
             setCarregando(false)
         }
@@ -44,7 +44,7 @@ export default function Cadastro() {
             await verificarWhatsapp(telefone)
             navigate('/dashboard')
         } catch (err) {
-            setErro(err.message)
+            setErro(err.response?.data?.message || err.message || 'Erro inesperado. Tente novamente.')
         } finally {
             setVerificando(false)
         }
