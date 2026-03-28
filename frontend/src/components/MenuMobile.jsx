@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Glass } from "./GlassContainer";
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate} from 'react-router-dom'
 import { useAuth } from "../hooks/useAuth";
 
 export function MobileMenu({ isOpen, onClose }) {
@@ -94,8 +94,8 @@ export function MobileMenu({ isOpen, onClose }) {
                           saturation={1.2}
                           shadowOpacity={0.2}
                       >
-                        <a
-                            href="/"
+                        <Link
+                            to="/meusalertas"
                             className="group self-center items-center flex gap-2 h-12  px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
                             onClick={handleClose}
                         >
@@ -116,7 +116,7 @@ export function MobileMenu({ isOpen, onClose }) {
                             />
                           </svg>
                           <span className="leading-none relative top-0.5">Meus Alertas</span>
-                        </a>
+                        </Link>
                       </Glass>
                     </li>
                     <li className="">
@@ -130,8 +130,8 @@ export function MobileMenu({ isOpen, onClose }) {
                             saturation={1.2}
                             shadowOpacity={0.2}
                         >
-                          <a
-                              href="/estoque"
+                          <Link
+                              to="/favoritos"
                               className="group self-center items-center flex gap-2 h-12 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
                               onClick={handleClose}
                           >
@@ -140,7 +140,7 @@ export function MobileMenu({ isOpen, onClose }) {
                             </svg>
 
                             <span className="leading-none relative top-0.5">Anúncios Favoritos</span>
-                          </a>
+                          </Link>
                         </Glass>
                       </div>
                     </li>
@@ -154,8 +154,8 @@ export function MobileMenu({ isOpen, onClose }) {
                           saturation={1.2}
                           shadowOpacity={0.2}
                       >
-                        <a
-                            href="/vender"
+                        <Link
+                            to="/relatorios"
                             className="group cursor-pointer flex items-center gap-2 py-3 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
                             onClick={handleClose}
                         >
@@ -167,7 +167,7 @@ export function MobileMenu({ isOpen, onClose }) {
                           </svg>
 
                           <span className="leading-none relative top-0.5">Relatórios</span>
-                        </a>
+                        </Link>
                       </Glass>
                     </li>
                     <li>
@@ -180,8 +180,8 @@ export function MobileMenu({ isOpen, onClose }) {
                           saturation={1.2}
                           shadowOpacity={0.2}
                       >
-                        <a
-                            href="/sobre"
+                        <Link
+                            to="/historico"
                             className="group cursor-pointer flex items-center gap-2 py-3 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
                             onClick={handleClose}
                         >
@@ -189,7 +189,7 @@ export function MobileMenu({ isOpen, onClose }) {
                             <path d="M10.0001 1.66675C5.40841 1.66675 1.66675 5.40841 1.66675 10.0001C1.66675 14.5917 5.40841 18.3334 10.0001 18.3334C14.5917 18.3334 18.3334 14.5917 18.3334 10.0001C18.3334 5.40841 14.5917 1.66675 10.0001 1.66675ZM13.6251 12.9751C13.5084 13.1751 13.3001 13.2834 13.0834 13.2834C12.9751 13.2834 12.8667 13.2584 12.7667 13.1917L10.1834 11.6501C9.54175 11.2667 9.06675 10.4251 9.06675 9.68341V6.26675C9.06675 5.92508 9.35008 5.64175 9.69175 5.64175C10.0334 5.64175 10.3167 5.92508 10.3167 6.26675V9.68341C10.3167 9.98341 10.5667 10.4251 10.8251 10.5751L13.4084 12.1167C13.7084 12.2917 13.8084 12.6751 13.6251 12.9751Z" fill="currentColor"/>
                           </svg>
                           <span className="leading-none relative top-0.5">Histórico de Anúncios</span>
-                        </a>
+                        </Link>
                       </Glass>
                     </li>
                   </ul>
@@ -225,8 +225,8 @@ export function MobileMenu({ isOpen, onClose }) {
                   <div className="mt-8 text-center text-sm text-gray-400 space-y-2">
                     <p>ScraperCar 2026 - Desenvolvido por</p>
                     <div className="justify-self-center ">
-                      <a className="flex gap-2" href="https://github.com/Augustbr01/">
-                        <svg height="22" fill="#FFFFFF" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="22" data-view-component="true" class="octicon octicon-mark-github">
+                      <a className="flex gap-2" href="https://github.com/Augustbr01/" target="_blank" rel="noopener noreferrer">
+                        <svg height="22" fill="#FFFFFF" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="22" data-view-component="true" className="octicon octicon-mark-github">
                           <path d="M10.303 16.652c-2.837-.344-4.835-2.385-4.835-5.028 0-1.074.387-2.235 1.031-3.008-.279-.709-.236-2.214.086-2.837.86-.107 2.02.344 2.708.967.816-.258 1.676-.386 2.728-.386 1.053 0 1.913.128 2.686.365.666-.602 1.848-1.053 2.708-.946.3.581.344 2.085.064 2.815.688.817 1.053 1.913 1.053 3.03 0 2.643-1.998 4.641-4.877 5.006.73.473 1.224 1.504 1.224 2.686v2.235c0 .644.537 1.01 1.182.752 3.889-1.483 6.94-5.372 6.94-10.185 0-6.081-4.942-11.044-11.022-11.044-6.081 0-10.98 4.963-10.98 11.044a10.84 10.84 0 0 0 7.112 10.206c.58.215 1.139-.172 1.139-.752v-1.719a2.768 2.768 0 0 1-1.032.215c-1.418 0-2.256-.773-2.857-2.213-.237-.58-.495-.924-.989-.988-.258-.022-.344-.129-.344-.258 0-.258.43-.451.86-.451.623 0 1.16.386 1.719 1.181.43.623.881.903 1.418.903.537 0 .881-.194 1.375-.688.365-.365.645-.687.903-.902Z"></path>
                         </svg>
                         <span className="leading-none relative top-1.5">Augustbr01</span>

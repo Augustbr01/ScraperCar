@@ -16,7 +16,6 @@ export default function Cadastro() {
     const [nome, setNome] = useState('')
     const [telefone, setTelefone] = useState('')
 
-    // dados que voltam da API
     const [codigoVerificacao, setCodigoVerificacao] = useState('')
     const [numeroBo, setNumeroBo] = useState('')
 
