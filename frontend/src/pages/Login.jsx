@@ -59,7 +59,7 @@ function Login() {
                                 <form className="mt-10 grid" onSubmit={handleSubmit}>
                                     <div className="w-full grid gap-4 mb-1">
                                         <input
-                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50"
+                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-12 border-none text-white placeholder:text-[#E0E0E0]/50 focus:ring-2 focus:ring-[#00FFFF]/50 transition-all"
                                             placeholder="Email"
                                             type="email"
                                             value={email}
@@ -67,7 +67,7 @@ function Login() {
                                             disabled={isLoading}
                                         />
                                         <input
-                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50"
+                                            className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-12 border-none text-white placeholder:text-[#E0E0E0]/50 focus:ring-2 focus:ring-[#00FFFF]/50 transition-all"
                                             type="password"
                                             placeholder="Senha"
                                             value={senha}
