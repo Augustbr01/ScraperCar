@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import { Glass } from "../components/GlassContainer"
 import {cadastrarUsuario, verificarWhatsapp} from "../services/authService.js";
 
@@ -57,9 +57,9 @@ export default function Cadastro() {
             <div className="justify-items-center w-[90%] max-w-md h-auto">
                 <div className="mb-2 absolute flex top-20 items-center gap-3 self-start">
                     {/* seu SVG aqui */}
-                    <a className="font-bold text-[#E0E0E0]" href="/">
+                    <Link className="font-bold text-[#E0E0E0]" to="/">
                         <span className="text-white text-2xl leading-none relative top-1">ScraperCar</span>
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="relative w-full">
@@ -103,7 +103,7 @@ export default function Cadastro() {
 
                                 <div className="mt-10 grid justify-center gap-1">
                                     <span className="text-white">Tem uma conta?</span>
-                                    <a className="text-[#C85BFF] justify-self-center" href="/login">Entrar</a>
+                                    <Link className="text-[#C85BFF] justify-self-center" to="/login">Entrar</Link>
                                 </div>
                             </div>
                         )}

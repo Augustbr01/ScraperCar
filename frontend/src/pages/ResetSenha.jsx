@@ -25,7 +25,7 @@ export default function ResetSenha() {
         await solicitarResetSenha(email)
         setMessage("Link enviado com sucesso! Verifique seu e-mail.")
         } catch (err) {
-        setMessage(err.message)
+        setMessage(err.response?.data?.message || err.message)
         } finally {
         setIsLoading(false)
         }
@@ -42,13 +42,13 @@ export default function ResetSenha() {
         setMessage("")
 
         try {
-        await confirmarResetSenha({ token, senhanova })
-        setMessage("Senha alterada com sucesso! Redirecionando...")
-        setTimeout(() => navigate("/login"), 2500)
+            await confirmarResetSenha({ token, senhanova })
+            setMessage("Senha alterada com sucesso! Redirecionando...")
+            setTimeout(() => navigate("/login"), 2500)
         } catch (err) {
-        setMessage(err.message)
+            setMessage(err.response?.data?.message || err.message)
         } finally {
-        setIsLoading(false)
+            setIsLoading(false)
         }
     }
 
