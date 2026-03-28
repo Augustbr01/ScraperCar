@@ -3,6 +3,7 @@ import { Glass } from "../components/GlassContainer";
 import { useAuth } from "../hooks/useAuth";
 import {Link, useNavigate} from "react-router-dom";
 
+import { Analytics } from '@vercel/analytics/react';
 
 function Login() {
     const [email, setEmail] = useState('')
@@ -103,6 +104,7 @@ function Login() {
                     </div>
                 </div>
             </div>
+            <Analytics />
         </>
     )
 }

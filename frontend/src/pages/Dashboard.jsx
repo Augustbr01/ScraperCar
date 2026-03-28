@@ -5,6 +5,7 @@ import { CardAlerta } from '../components/Cardalerta'
 import { ModalNovoAlerta } from '../components/ModalNovoAlerta'
 import { ModalGerenciarAlerta } from '../components/Modalgerenciaralerta'
 import { Toast } from '../components/Toast'
+import { Analytics } from '@vercel/analytics/react';
 
 function Dashboard() {
     // ─── Estado dos modais ─────────────────────────────────────────────────────
@@ -217,6 +218,7 @@ function Dashboard() {
                 tipo={toast.tipo}
                 onFechar={fecharToast}
             />
+            <Analytics />
         </section>
     )
 }

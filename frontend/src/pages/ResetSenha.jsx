@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Glass } from "../components/GlassContainer";
 import { useState, useMemo } from "react";
 import { solicitarResetSenha, confirmarResetSenha } from "../services/authService";
+import { Analytics } from '@vercel/analytics/react';
 
 export default function ResetSenha() {
     const [searchParams] = useSearchParams();
@@ -123,6 +124,7 @@ export default function ResetSenha() {
                     </div>
                 </div>
             </div>
+            <Analytics />
         </>
     )
 }

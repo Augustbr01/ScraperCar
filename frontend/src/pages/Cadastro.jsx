@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 import {Link, useNavigate} from "react-router-dom"
 import { Glass } from "../components/GlassContainer"
 import {cadastrarUsuario, verificarWhatsapp} from "../services/authService.js";
+import { Analytics } from '@vercel/analytics/react';
 
 export default function Cadastro() {
     const navigate = useNavigate()
@@ -162,6 +163,7 @@ export default function Cadastro() {
                     </Glass>
                 </div>
             </div>
+            <Analytics />
         </div>
     )
 }
