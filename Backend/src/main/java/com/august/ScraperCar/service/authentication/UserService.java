@@ -116,7 +116,11 @@ public class UserService {
         String accessToken = jwtService.gerarToken(dto.email(), role);
         String refreshToken = jwtService.gerarRefreshToken(dto.email(), role);
 
-        return new UserLoginResponseDTO(accessToken, refreshToken, dto.email());
+        UserModel userAutenticado = (UserModel) auth.getPrincipal();
+
+        assert userAutenticado != null;
+
+        return new UserLoginResponseDTO(accessToken, refreshToken, dto.email(), userAutenticado.getVerificado());
     }
 
     public RefreshResponseDTO refresh(RefreshRequestDTO dto) {
@@ -134,4 +138,5 @@ public class UserService {
 
         return new RefreshResponseDTO(novoAccess, novoRefresh);
     }
+
 }
