@@ -2,17 +2,26 @@ import { useCallback, useState } from "react"
 import { Glass } from "../components/GlassContainer";
 import { useAuth } from "../hooks/useAuth";
 import {Link, useNavigate} from "react-router-dom";
+import { gerarCodigoVerificacao } from "../services/authService.js";
 
 import { Analytics } from '@vercel/analytics/react';
+import VerificacaoWhatsapp from "./VerifyPhone.jsx";
 
 function Login() {
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [validandoNumero, setValidandoNumero] = useState()
+    const [telefone, setTelefone] = useState('')
+
+    const [codigoVerificacao, setCodigoVerificacao] = useState('')
+    const [numeroBo, setNumeroBo] = useState('')
 
     const { login } = useAuth()
     const navigate = useNavigate()
+
+
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault()
@@ -20,14 +29,35 @@ function Login() {
         setIsLoading(true)
 
         try {
-            await login({ email, senha })
-            navigate('/dashboard')
+            const dataLogin = await login({ email, senha })
+            if (!dataLogin.validPhone) {
+                const dataVerify = await gerarCodigoVerificacao()
+                setValidandoNumero(true);
+                setTelefone(dataVerify.telefone);
+                setNumeroBo(dataVerify.numeroBot);
+                setCodigoVerificacao(dataVerify.codigo);
+            } else {
+                navigate('/dashboard')
+            }
+
         } catch {
             setError('Email ou senha inválidos')
         } finally {
             setIsLoading(false)
         }
     }, [email, senha, login, navigate])
+
+    if (validandoNumero) {
+        return (
+            <VerificacaoWhatsapp
+                telefone={telefone}
+                codigoVerificacao={codigoVerificacao}
+                numeroBo={numeroBo}
+                onSucesso={() => navigate('/dashboard')}
+                onVoltar={() => setValidandoNumero(false)}
+            />
+        )
+    }
 
 
     return (

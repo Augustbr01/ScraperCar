@@ -48,6 +48,8 @@ export function AuthProvider({ children }) {
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
 
     setUser({ email: userEmail })
+
+    return data;
   }, [])
 
   useEffect(() => {

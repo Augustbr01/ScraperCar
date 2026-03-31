@@ -18,3 +18,13 @@ export async function solicitarResetSenha(email) {
 export async function confirmarResetSenha({ token, senhanova }) {
   await api.post('/auth/resetsenha/confirmar', { token, senhanova })
 }
+
+export async function gerarCodigoVerificacao() {
+  const { data } = await api.post('/verify/gerar')
+  return data
+}
+
+export async function trocarNumero(novoTelefone) {
+  const { data } = await api.post('/verify/trocar-numero', { telefone: novoTelefone })
+  return data
+}

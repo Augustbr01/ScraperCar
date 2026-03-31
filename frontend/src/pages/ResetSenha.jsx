@@ -23,20 +23,20 @@ export default function ResetSenha() {
         setMessage("")
 
         try {
-        await solicitarResetSenha(email)
-        setMessage("Link enviado com sucesso! Verifique seu e-mail.")
+            await solicitarResetSenha(email)
+            setMessage("Link enviado com sucesso! Verifique seu e-mail.")
         } catch (err) {
-        setMessage(err.response?.data?.message || err.message)
+            setMessage(err.response?.data?.message || err.message)
         } finally {
-        setIsLoading(false)
+            setIsLoading(false)
         }
     }
 
     const handleResetPassword = async (e) => {
         e.preventDefault()
         if (senhanova !== confirmPassword) {
-        setMessage("As senhas não coincidem.")
-        return
+            setMessage("As senhas não coincidem.")
+            return
         }
 
         setIsLoading(true)
