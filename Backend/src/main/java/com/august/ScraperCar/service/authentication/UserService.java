@@ -138,5 +138,4 @@ public class UserService {
 
         return new RefreshResponseDTO(novoAccess, novoRefresh);
     }
-
 }
