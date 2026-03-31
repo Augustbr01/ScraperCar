@@ -29,6 +29,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    private static final List<String> ROTAS_LIBERADAS = List.of(
+            "/auth/login",
+            "/auth/cadastro",
+            "/verify/gerar",
+            "/verify/trocar-numero",
+            "/verify/status"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return ROTAS_LIBERADAS.contains(request.getRequestURI());
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -46,6 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String email = jwtService.extrairEmail(token);
+
 
             if (email != null
                     && !email.startsWith("REFRESH_")

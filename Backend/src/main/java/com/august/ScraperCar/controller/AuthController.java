@@ -50,7 +50,8 @@ public class AuthController {
         return ResponseEntity.ok(new UserLoginResponseDTO(
                 result.accessToken(),
                 null,
-                result.email()
+                result.email(),
+                result.validPhone()
         ));
     }
 
