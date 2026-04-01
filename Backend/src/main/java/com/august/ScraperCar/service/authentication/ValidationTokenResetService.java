@@ -1,12 +1,12 @@
 package com.august.ScraperCar.service.authentication;
 
-import com.august.ScraperCar.config.SecurityConfig;
 import com.august.ScraperCar.dto.authentication.response.ResetSenhaResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.TokenResetModel;
 import com.august.ScraperCar.model.UserModel;
 import com.august.ScraperCar.repository.TokenResetRepository;
 import com.august.ScraperCar.repository.UserRepository;
+import com.august.ScraperCar.util.PepperUtil;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
@@ -25,16 +25,16 @@ public class ValidationTokenResetService {
     private final TokenResetRepository tokenResetRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SecurityConfig securityConfig;
+    private final PepperUtil pepperUtil;
 
     public ValidationTokenResetService(TokenResetRepository tokenResetRepository,
                                        UserRepository userRepository,
                                        PasswordEncoder passwordEncoder,
-                                       SecurityConfig securityConfig) {
+                                       PepperUtil pepperUtil) {
         this.tokenResetRepository = tokenResetRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.securityConfig = securityConfig;
+        this.pepperUtil = pepperUtil;
     }
 
     @Value("${RESEND_TOKEN}")
@@ -112,7 +112,7 @@ public class ValidationTokenResetService {
         UserModel user = tokenModel.get().getUser();
 
         String senhacriptografada = passwordEncoder.encode(
-                securityConfig.aplicarPepper(senhanova)
+                pepperUtil.aplicar(senhanova)
         );
 
         user.setSenha(senhacriptografada);

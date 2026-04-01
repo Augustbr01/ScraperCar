@@ -8,6 +8,7 @@ import com.august.ScraperCar.model.VerifyCodeModel;
 import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.repository.VerifyCodeRepository;
 import com.august.ScraperCar.service.authentication.JwtService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,8 @@ public class VerifyService {
     private final WhatsAppService whatsAppService;
     private final JwtService jwtService;
     private final VerifyCodeRepository verifyCodeRepository;
+    private final SecureRandom random = new SecureRandom();
+
 
     public VerifyService(UserRepository userRepository, WhatsAppService whatsAppService,  JwtService jwtService,  VerifyCodeRepository verifyCodeRepository) {
         this.userRepository = userRepository;
@@ -34,8 +37,7 @@ public class VerifyService {
     }
 
     public String gerarCodigo() {
-        SecureRandom random = new SecureRandom();
-        int codigo = 100000 + random.nextInt(99999);
+        int codigo = 100000 + random.nextInt(900000);
         return String.valueOf(codigo);
     }
 
@@ -61,8 +63,8 @@ public class VerifyService {
         return new UserCodeGenDTO(userDB.get().getTelefone(), NUMERODOBOT, codigo);
     }
 
+    @Transactional
     public void processar(String from, String body) {
-        System.out.println("Codigo recebido no webhook!");
 
         ContactDTO contact = whatsAppService.buscarContato(from);
 
@@ -72,7 +74,6 @@ public class VerifyService {
 
         Optional<VerifyCodeModel> code = verifyCodeRepository.findByUserTelefone(numeroformatado);
         if (code.isEmpty()) {
-            System.out.println("Codigo nao gerado para este numero!");
             throw new BusinessException("Codigo nao gerado para este numero!", 404);
 
         }
@@ -81,20 +82,16 @@ public class VerifyService {
 
 
         if (codeDB.getExpiresAt().isBefore(LocalDateTime.now())) {
-            System.out.println("CODIGO EXPIRADO");
             throw new BusinessException("Codigo expirado!", 401);
         }
 
         if (!codeDB.getCodigo().equals(body)) {
-            System.out.println("CODIGO INVALIDO");
             throw new BusinessException("Codigo invalido!", 401);
         }
 
 
         codeDB.getUser().setVerificado(true);
-        System.out.println("Verificado para este numero!");
         userRepository.save(codeDB.getUser());
-        System.out.println("Verificado com sucesso!");
     }
 
     private String normalizarNumero(String numero) {
@@ -115,13 +112,11 @@ public class VerifyService {
     }
 
     public Boolean verificarTelefone(String telefone) {
-        System.out.println("Verificando telefone para este numero! " + telefone);
         String telefoneNormal =  normalizarNumero(telefone);
         Optional<UserModel> user = userRepository.findByTelefone(telefoneNormal);
         if (user.isEmpty()) {
             throw new BusinessException("Telefone inexistente", 404);
         }
-        System.out.println("Verificado: " + user.get().getVerificado());
 
         return user.get().getVerificado();
     }
@@ -139,7 +134,7 @@ public class VerifyService {
         verifyCodeRepository.save(verifyCodeModel);
     }
 
-
+    @Transactional
     public UserCodeGenDTO trocarNumero (String token, String novoTelefone) {
 
         if (novoTelefone == null || novoTelefone.isBlank()) {
@@ -149,11 +144,9 @@ public class VerifyService {
         String novoTelefoneNormalizado = normalizarNumero(novoTelefone);
 
 
-        System.out.println("METODO TROCAR NUMERO INICIADO");
         String email = jwtService.extrairEmail(token);
         Optional<UserModel> userDB = userRepository.findByEmail(email);
 
-        System.out.println("EMAIL EXTRAIDO: " + email);
 
 
 
@@ -164,7 +157,7 @@ public class VerifyService {
 
         System.out.println("USUARIO ENCONTRADO: " + userDB.get().getNome());
 
-        if (userRepository.existsByTelefone(novoTelefone)) {
+        if (userRepository.existsByTelefone(novoTelefoneNormalizado)) {
             throw new BusinessException("Telefone ja existente!", 401);
         }
 
@@ -173,20 +166,16 @@ public class VerifyService {
         UserModel user = userDB.get();
 
         try {
-            System.out.println("Tentando setar o numero novo na tabela do usuario");
             user.setTelefone(novoTelefoneNormalizado);
-            UserModel saved = userRepository.save(user);
+            userRepository.save(user);
 
-            System.out.println("Numero setado com sucesso! \n ID: " + saved.getId() + "\n Nome: " + saved.getNome() + " \n Telefone: " + saved.getTelefone());
         } catch (Exception e) {
             throw new BusinessException("Erro ao salvar!", 401);
         }
 
         String codigo = gerarCodigo();
-        System.out.println("Codigo gerado com sucesso!");
 
         salvarCodigo(userDB.get(), codigo);
-        System.out.println("Codigo salvo na tabela com sucesso!");
 
         return new UserCodeGenDTO(novoTelefone, NUMERODOBOT, codigo);
     }

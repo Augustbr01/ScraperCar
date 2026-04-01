@@ -1,6 +1,5 @@
 package com.august.ScraperCar.service.authentication;
 
-import com.august.ScraperCar.config.SecurityConfig;
 import com.august.ScraperCar.dto.authentication.request.RefreshRequestDTO;
 import com.august.ScraperCar.dto.authentication.request.UserCreateRequestDTO;
 import com.august.ScraperCar.dto.authentication.request.UserLoginRequestDTO;
@@ -13,12 +12,14 @@ import com.august.ScraperCar.model.VerifyCodeModel;
 import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.repository.VerifyCodeRepository;
 import com.august.ScraperCar.service.wpp.VerifyService;
+import com.august.ScraperCar.util.PepperUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -28,33 +29,34 @@ public class UserService {
 
     private final VerifyService verifyService;
     private final VerifyCodeRepository verifyCodeRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PepperUtil pepperUtil;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Value("${WPP_NUMERO}")
     private String NUMERODOBOT;
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final SecurityConfig securityConfig;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            SecurityConfig securityConfig,
+            PepperUtil pepperUtil,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            VerifyService verifyService, VerifyCodeRepository verifyCodeRepository)
+            VerifyService verifyService,
+            VerifyCodeRepository verifyCodeRepository)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.securityConfig = securityConfig;
+        this.pepperUtil = pepperUtil;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.verifyService = verifyService;
         this.verifyCodeRepository = verifyCodeRepository;
     }
 
+    @Transactional
     public UserCreateResponseDTO cadastro(UserCreateRequestDTO dto) {
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -62,17 +64,12 @@ public class UserService {
         }
 
         if (userRepository.existsByTelefone(dto.getTelefone())) {
-            throw new BusinessException("Telefone ja cadastrado", 409);
+            throw new BusinessException("Telefone já cadastrado", 409);
         }
-
 
         UserModel newUser = new UserModel();
         newUser.setNome(dto.getNome());
-        newUser.setSenha(
-                passwordEncoder.encode(
-                        securityConfig.aplicarPepper(dto.getSenha())
-                )
-        );
+        newUser.setSenha(passwordEncoder.encode(pepperUtil.aplicar(dto.getSenha())));
         newUser.setEmail(dto.getEmail());
         newUser.setTelefone(dto.getTelefone());
         UserModel savedUser = userRepository.save(newUser);
@@ -86,56 +83,53 @@ public class UserService {
         verifyCodeRepository.save(verifyCodeModel);
 
         return new UserCreateResponseDTO(
-                newUser.getId(),
-                newUser.getNome(),
-                newUser.getEmail(),
-                newUser.getTelefone(),
+                savedUser.getId(),
+                savedUser.getNome(),
+                savedUser.getEmail(),
+                savedUser.getTelefone(),
                 codigo,
                 NUMERODOBOT
         );
     }
 
     public UserLoginResponseDTO login(UserLoginRequestDTO dto) {
-        // Aplica o pepper antes de autenticar, igual ao cadastro
-        String senhacompepper = securityConfig.aplicarPepper(dto.senha());
-
-        // O Spring Security valida email + senha automaticamente
         Authentication auth;
         try {
             auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(dto.email(), senhacompepper)
+                    new UsernamePasswordAuthenticationToken(dto.email(), pepperUtil.aplicar(dto.senha()))
             );
         } catch (Exception e) {
-            throw new BusinessException("Email ou senha invalido!", 401);
+            throw new BusinessException("Email ou senha inválido!", 401);
         }
 
-
-        String role = Objects.requireNonNull(auth.getAuthorities().iterator().next().getAuthority()).replace("ROLE_", "");
-
-        // Se chegou aqui, autenticou com sucesso → gera o token
-        String accessToken = jwtService.gerarToken(dto.email(), role);
-        String refreshToken = jwtService.gerarRefreshToken(dto.email(), role);
-
         UserModel userAutenticado = (UserModel) auth.getPrincipal();
+        if (userAutenticado == null) {
+            throw new BusinessException("Erro ao recuperar usuário autenticado", 500);
+        }
 
-        assert userAutenticado != null;
+        String role = Objects.requireNonNull(auth.getAuthorities().iterator().next().getAuthority())
+                .replace("ROLE_", "");
+
+        String accessToken = jwtService.gerarToken(dto.email(), role, userAutenticado.getVerificado());
+        String refreshToken = jwtService.gerarRefreshToken(dto.email(), role);
 
         return new UserLoginResponseDTO(accessToken, refreshToken, dto.email(), userAutenticado.getVerificado());
     }
 
     public RefreshResponseDTO refresh(RefreshRequestDTO dto) {
-        String refreshToken = dto.refreshToken();
-
-        if (!jwtService.isRefreshToken(refreshToken)) {
-            throw new BusinessException("Refresh token invalido", 401);
+        if (!jwtService.isRefreshToken(dto.refreshToken())) {
+            throw new BusinessException("Refresh token inválido", 401);
         }
 
-        String email = jwtService.extrairEmail(refreshToken).replace("REFRESH_", "");
-        String role = jwtService.extrairRole(refreshToken);
+        String email = jwtService.extrairEmail(dto.refreshToken());
+        String role = jwtService.extrairRole(dto.refreshToken());
 
-        String novoAccess = jwtService.gerarToken(email,role);
-        String novoRefresh = jwtService.gerarRefreshToken(email, role);
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado", 404));
 
-        return new RefreshResponseDTO(novoAccess, novoRefresh);
+        return new RefreshResponseDTO(
+                jwtService.gerarToken(email, role, user.getVerificado()),
+                jwtService.gerarRefreshToken(email, role)
+        );
     }
 }

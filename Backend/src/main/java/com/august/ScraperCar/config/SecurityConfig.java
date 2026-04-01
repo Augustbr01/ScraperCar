@@ -72,13 +72,9 @@ public class SecurityConfig {
         );
     }
 
-    public String aplicarPepper(String senha) {
-        return senha + pepper;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 }
