@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback, Suspense } from 'react'
 import Navbar from '../components/Navbar'
 import { useAlertas } from '../hooks/useAlertas'
 import { CardAlerta } from '../components/Cardalerta'
-import { ModalNovoAlerta } from '../components/ModalNovoAlerta'
+const ModalNovoAlerta = React.lazy(() => import('../components/ModalNovoAlerta').then(m => ({ default: m.ModalNovoAlerta })))
 import { ModalGerenciarAlerta } from '../components/Modalgerenciaralerta'
 import { Toast } from '../components/Toast'
 import { Analytics } from '@vercel/analytics/react';
@@ -199,11 +199,13 @@ function Dashboard() {
       `}</style>
 
             {/* ─── Modais ─────────────────────────────────────────────────────────── */}
-            <ModalNovoAlerta
-                aberto={modalCriarAberto}
-                onFechar={() => setModalCriarAberto(false)}
-                onCriar={handleCriar}
-            />
+            <Suspense fallback={null}>
+                <ModalNovoAlerta
+                    aberto={modalCriarAberto}
+                    onFechar={() => setModalCriarAberto(false)}
+                    onCriar={handleCriar}
+                />
+            </Suspense>
 
             <ModalGerenciarAlerta
                 alerta={alertaSelecionado}

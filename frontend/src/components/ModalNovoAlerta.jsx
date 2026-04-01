@@ -1,18 +1,57 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Glass } from './GlassContainer'
+import carData from '../data/shopcar_checkpoint.json'
+
+const selectClass = [
+    'w-full bg-[#2a2a2a] border-none outline-none rounded-full',
+    'px-4 py-[10px] text-[13px] font-[Manjari,sans-serif]',
+    'appearance-none cursor-pointer',
+].join(' ')
 
 const inputClass = [
     'w-full bg-[#2a2a2a] border-none outline-none rounded-full',
     'px-4 py-[10px] text-[#E0E0E0] text-[13px] font-[Manjari,sans-serif]',
 ].join(' ')
 
+function SelectField({ value, onChange, options, placeholder, disabled }) {
+    const isEmpty = !value
+    return (
+        <div className="relative w-full">
+            <select
+                className={[
+                    selectClass,
+                    isEmpty ? 'text-[#E0E0E0]/40' : 'text-[#E0E0E0]',
+                    disabled ? 'opacity-30 cursor-not-allowed' : '',
+                ].join(' ')}
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                disabled={disabled}
+            >
+                <option value="" disabled hidden>{placeholder}</option>
+                {options.map(opt => (
+                    <option key={opt.value} value={opt.value}
+                            style={{ background: '#1a1a1a', color: '#E0E0E0' }}>
+                        {opt.label}
+                    </option>
+                ))}
+            </select>
+            {/* Seta custom */}
+            <svg
+                className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 opacity-40"
+                width="10" height="10" viewBox="0 0 10 10" fill="none"
+            >
+                <path d="M1 3l4 4 4-4" stroke="#E0E0E0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        </div>
+    )
+}
 
 /**
  * ModalNovoAlerta
  * Props:
  *   aberto     — boolean
  *   onFechar   — fn
- *   onCriar    — fn(payload) → Promise  (retorna do useAlertas.criarAlerta)
+ *   onCriar    — fn(payload) → Promise
  */
 export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
     const [salvando, setSalvando] = useState(false)
@@ -29,13 +68,65 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
         intervalo: 30,
     })
 
+    // ─── Opções derivadas do JSON ────────────────────────────────────────────
+
+    const marcaOptions = useMemo(() =>
+            Object.entries(carData.Carros)
+                .map(([nome, data]) => ({ value: String(data._id), label: nome }))
+                .sort((a, b) => a.label.localeCompare(b.label)),
+        []
+    )
+
+    const marcaSelecionada = useMemo(() =>
+            Object.values(carData.Carros).find(d => String(d._id) === form.marca),
+        [form.marca]
+    )
+
+    const modeloOptions = useMemo(() => {
+        if (!marcaSelecionada) return []
+        return Object.keys(marcaSelecionada.modelos)
+            .map(nome => ({ value: nome, label: nome }))
+            .sort((a, b) => a.label.localeCompare(b.label))
+    }, [marcaSelecionada])
+
+    const versaoOptions = useMemo(() => {
+        if (!marcaSelecionada || !form.modelo) return []
+        const versoes = marcaSelecionada.modelos[form.modelo]
+        if (!versoes) return []
+        return Object.keys(versoes)
+            .map(nome => ({ value: nome, label: nome }))
+            .sort((a, b) => a.label.localeCompare(b.label))
+    }, [marcaSelecionada, form.modelo])
+
+    const anosDisponiveis = useMemo(() => {
+        if (!marcaSelecionada || !form.modelo || !form.versao) return []
+        const anos = marcaSelecionada.modelos[form.modelo]?.[form.versao] ?? []
+        return anos
+            .filter(a => a !== 'Novo')
+            .map(a => ({ value: a, label: a }))
+            .sort((a, b) => Number(b.value) - Number(a.value))
+    }, [marcaSelecionada, form.modelo, form.versao])
+
+    // ─── Handlers ────────────────────────────────────────────────────────────
+
     const handleChange = useCallback((campo, valor) => {
-        setForm(prev => ({ ...prev, [campo]: valor }))
+        setForm(prev => {
+            const next = { ...prev, [campo]: valor }
+            // Resetar campos dependentes
+            if (campo === 'marca')  { next.modelo = ''; next.versao = ''; next.faixaano1 = ''; next.faixaano2 = '' }
+            if (campo === 'modelo') { next.versao = ''; next.faixaano1 = ''; next.faixaano2 = '' }
+            if (campo === 'versao') { next.faixaano1 = ''; next.faixaano2 = '' }
+            return next
+        })
     }, [])
 
     const handleSubmit = useCallback(async () => {
+        const marcaNome = Object.entries(carData.Carros)
+            .find(([, d]) => String(d._id) === form.marca)?.[0] ?? form.marca
+
         const payload = {
             marca: Number(form.marca) || form.marca,
+            marcaNome,
             modelo: form.modelo,
             versao: form.versao || undefined,
             faixaano1: form.faixaano1 ? Number(form.faixaano1) : undefined,
@@ -96,43 +187,47 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
                         {/* Campos */}
                         <div className="flex flex-col gap-2.5">
 
-                            <input
-                                className={inputClass}
-                                placeholder="Marca (ID numérico)"
-                                type="number"
+                            {/* Marca */}
+                            <SelectField
                                 value={form.marca}
-                                onChange={e => handleChange('marca', e.target.value)}
+                                onChange={v => handleChange('marca', v)}
+                                options={marcaOptions}
+                                placeholder="Marca"
                             />
 
-                            <input
-                                className={inputClass}
-                                placeholder="Modelo"
+                            {/* Modelo */}
+                            <SelectField
                                 value={form.modelo}
-                                onChange={e => handleChange('modelo', e.target.value)}
+                                onChange={v => handleChange('modelo', v)}
+                                options={modeloOptions}
+                                placeholder="Modelo"
+                                disabled={!form.marca}
                             />
 
-                            <input
-                                className={inputClass}
-                                placeholder="Versão"
+                            {/* Versão */}
+                            <SelectField
                                 value={form.versao}
-                                onChange={e => handleChange('versao', e.target.value)}
+                                onChange={v => handleChange('versao', v)}
+                                options={versaoOptions}
+                                placeholder="Versão"
+                                disabled={!form.modelo}
                             />
 
                             {/* Ano inicial + Ano final */}
                             <div className="grid grid-cols-2 gap-2.5">
-                                <input
-                                    className={inputClass}
-                                    placeholder="Ano inicial"
-                                    type="number"
+                                <SelectField
                                     value={form.faixaano1}
-                                    onChange={e => handleChange('faixaano1', e.target.value)}
+                                    onChange={v => handleChange('faixaano1', v)}
+                                    options={anosDisponiveis}
+                                    placeholder="Ano inicial"
+                                    disabled={!form.versao}
                                 />
-                                <input
-                                    className={inputClass}
-                                    placeholder="Ano final"
-                                    type="number"
+                                <SelectField
                                     value={form.faixaano2}
-                                    onChange={e => handleChange('faixaano2', e.target.value)}
+                                    onChange={v => handleChange('faixaano2', v)}
+                                    options={anosDisponiveis}
+                                    placeholder="Ano final"
+                                    disabled={!form.versao}
                                 />
                             </div>
 
