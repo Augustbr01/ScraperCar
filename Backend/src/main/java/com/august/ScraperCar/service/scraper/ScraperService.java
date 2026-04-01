@@ -15,7 +15,6 @@ public class ScraperService {
     }
 
     public ScraperResponse scrapeCarro(ScraperRequest request) {
-        System.out.println("chegou no serice do scraper");
         System.out.println(request);
         return scraperClient
                 .post()
