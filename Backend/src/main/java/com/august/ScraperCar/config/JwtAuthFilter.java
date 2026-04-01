@@ -1,7 +1,5 @@
 package com.august.ScraperCar.config;
 
-import com.august.ScraperCar.model.UserModel;
-import com.august.ScraperCar.repository.UserRepository;
 import com.august.ScraperCar.service.authentication.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,11 +20,9 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
 
-    public JwtAuthFilter(JwtService jwtService, UserRepository userRepository) {
+    public JwtAuthFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.userRepository = userRepository;
     }
 
     private static final List<String> ROTAS_LIBERADAS = List.of(
@@ -62,12 +58,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
             if (email != null
-                    && !email.startsWith("REFRESH_")
+                    && !jwtService.isRefreshToken(token)   // ← correto
                     && SecurityContextHolder.getContext().getAuthentication() == null
                     && jwtService.isTokenValido(token, email)) {
 
-                UserModel user = userRepository.findByEmail(email).orElse(null);
-                if (user != null && !user.getVerificado()) {
+                Boolean verificado = jwtService.extrairVerificado(token);
+                if (Boolean.FALSE.equals(verificado)) {
                     response.setStatus(403);
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write("{\"error\":\"Número não verificado\"}");
@@ -84,7 +80,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-        } catch (Exception _) {
+        } catch (Exception e) {
+            logger.warn("Token inválido ou erro ao processar JWT: {}");
         }
 
         chain.doFilter(request, response);

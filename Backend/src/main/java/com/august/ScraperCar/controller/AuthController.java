@@ -9,9 +9,11 @@ import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.service.authentication.UserService;
 import com.august.ScraperCar.service.authentication.ValidationTokenResetService;
+import com.august.ScraperCar.util.RefreshCookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,10 +29,12 @@ public class AuthController {
 
     private final UserService userService;
     private final ValidationTokenResetService validationTokenResetService;
+    private final RefreshCookieUtil  refreshCookieUtil;
 
-    public AuthController(UserService userService, ValidationTokenResetService validationTokenResetService) {
+    public AuthController(UserService userService, ValidationTokenResetService validationTokenResetService,  RefreshCookieUtil refreshCookieUtil) {
         this.userService = userService;
         this.validationTokenResetService = validationTokenResetService;
+        this.refreshCookieUtil = refreshCookieUtil;
     }
 
     @PostMapping("/cadastro")
@@ -40,12 +44,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO dto,
-                                                      HttpServletResponse response
-    ) {
-
+                                                      HttpServletResponse response) {
         UserLoginResponseDTO result = userService.login(dto);
 
-        response.addCookie(criarRefreshCookie(result.refreshToken()));
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookieUtil.criar(result.refreshToken()).toString());
 
         return ResponseEntity.ok(new UserLoginResponseDTO(
                 result.accessToken(),
@@ -56,8 +58,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponseDTO> refresh(HttpServletRequest request, HttpServletResponse response) {
-
+    public ResponseEntity<RefreshResponseDTO> refresh(HttpServletRequest request,
+                                                      HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             throw new BusinessException("Refresh Token não encontrado", 401);
@@ -70,19 +72,15 @@ public class AuthController {
                 .orElseThrow(() -> new BusinessException("Refresh Token não encontrado", 401));
 
         RefreshResponseDTO result = userService.refresh(new RefreshRequestDTO(refreshToken));
-        response.addCookie(criarRefreshCookie(result.refreshToken()));
+
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookieUtil.criar(result.refreshToken()).toString());
 
         return ResponseEntity.ok(new RefreshResponseDTO(result.accessToken(), null));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        cookie.setPath("/auth/refresh");
-        response.addCookie(cookie);
-
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookieUtil.apagar().toString());
         return ResponseEntity.ok(Map.of("message", "Logout realizado"));
     }
 
@@ -99,14 +97,5 @@ public class AuthController {
         return ResponseEntity.ok().body(
                 (validationTokenResetService.resetarSenha(dto.token(), dto.senhanova()))
         );
-    }
-
-    private Cookie criarRefreshCookie(String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/auth/refresh");
-        cookie.setMaxAge(30 * 24 * 60 * 60);
-        return cookie;
     }
 }

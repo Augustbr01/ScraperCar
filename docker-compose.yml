@@ -35,6 +35,7 @@ services:
       WPP_NUMERO: ${WPP_NUMERO}
       RESEND_TOKEN: ${RESEND_TOKEN}
       URL_FRONTEND: ${URL_FRONTEND}
+      APP_PRODUCTION: ${APP_PRODUCTION}
     depends_on:
       - postgres
       - scraper
