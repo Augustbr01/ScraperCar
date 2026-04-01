@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
-import { api, setLogoutHandler } from '../services/api'
+import { api, setLogoutHandler, setAccessToken, getAccessToken } from '../services/api'
 import { AuthContext } from '../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 function isTokenExpired(token) {
   try {
@@ -12,44 +13,40 @@ function isTokenExpired(token) {
 }
 
 function loadUserFromStorage() {
-  const token = localStorage.getItem('token')
   const savedUser = localStorage.getItem('user')
-
-  if (!token || !savedUser) return null
-
+  if (!savedUser) return null
   try {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
     return JSON.parse(savedUser)
   } catch {
-    localStorage.removeItem('token')
     localStorage.removeItem('user')
     return null
   }
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUserFromStorage)
+  const [user, setUser] = useState(null)
   const [isIniciando, setIsIniciando] = useState(true)
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token')
+  const navigate = useNavigate()
+
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/auth/logout')
+    } catch (_) {}
     localStorage.removeItem('user')
-    delete api.defaults.headers.common['Authorization']
+    setAccessToken(null)
     setUser(null)
-  }, [])
+    navigate('/login')
+  }, [navigate])
 
   const login = useCallback(async ({ email, senha }) => {
     const { data } = await api.post('/auth/login', { email, senha })
 
-    const { accessToken, email: userEmail } = data
+    setAccessToken(data.accessToken) // ← memória, não localStorage
+    localStorage.setItem('user', JSON.stringify({ email: data.email }))
+    setUser({ email: data.email })
 
-    localStorage.setItem('token', accessToken)
-    localStorage.setItem('user', JSON.stringify({ email: userEmail }))
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-
-    setUser({ email: userEmail })
-
-    return data;
+    return data
   }, [])
 
   useEffect(() => {
@@ -58,33 +55,31 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     async function tryRefresh() {
-      const token = localStorage.getItem('token')
-      if (!token) {
+      const savedUser = loadUserFromStorage()
+
+      if (!savedUser) {
         setIsIniciando(false)
         return
       }
 
-      if (isTokenExpired(token)) {
-        try {
-          const { data } = await api.post('/auth/refresh')
-          localStorage.setItem('token', data.token)
-          api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+      try {
+        const { data } = await api.post('/auth/refresh')
+        setAccessToken(data.accessToken)
 
-          if (data.email) {
-            const updatedUser = { email: data.email }
-            localStorage.setItem('user', JSON.stringify(updatedUser))
-            setUser(updatedUser)
-          }
-        } catch {
-          logout()
-        }
+        const updatedUser = { email: data.email ?? savedUser.email }
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+        setUser(updatedUser)
+      } catch {
+        // só limpa, sem redirecionar — evita loop
+        localStorage.removeItem('user')
+        setUser(null)
+      } finally {
+        setIsIniciando(false)
       }
-
-      setIsIniciando(false)
     }
 
     tryRefresh()
-  }, [logout])
+  }, [])
 
   const value = {
     user,

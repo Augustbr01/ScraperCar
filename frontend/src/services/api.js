@@ -1,75 +1,83 @@
 import axios from 'axios'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // envia o cookie httpOnly do refresh token automaticamente
+    baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true,
 })
 
-// Fila de requisições que chegaram enquanto o refresh estava em andamento
 let isRefreshing = false
 let failedQueue = []
-
-function processQueue(error, token = null) {
-  failedQueue.forEach(({ resolve, reject }) => {
-    if (error) reject(error)
-    else resolve(token)
-  })
-  failedQueue = []
-}
-
-// Referência externa para o logout — injetada pelo AuthProvider
 let onLogout = null
+let accessTokenMemoria = null
 
 export function setLogoutHandler(fn) {
-  onLogout = fn
+    onLogout = fn
+}
+
+export function setAccessToken(token) {
+    accessTokenMemoria = token
+    if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    } else {
+        delete api.defaults.headers.common['Authorization']
+    }
+}
+
+export function getAccessToken() {
+    return accessTokenMemoria
+}
+
+function processQueue(error, token = null) {
+    failedQueue.forEach(({ resolve, reject }) => {
+        if (error) reject(error)
+        else resolve(token)
+    })
+    failedQueue = []
 }
 
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config
 
-    // Ignora erros que não sejam 401 ou que já tentaram refresh
-    if (error.response?.status !== 401 || originalRequest._retry) {
-      return Promise.reject(error)
+        if (error.response?.status !== 401 || originalRequest._retry) {
+            return Promise.reject(error)
+        }
+
+        // ← substitui aqui
+        const rotasIgnoradas = ['/auth/refresh', '/auth/logout', '/auth/login']
+        if (rotasIgnoradas.some(rota => originalRequest.url?.includes(rota))) {
+            if (originalRequest.url?.includes('/auth/refresh')) {
+                onLogout?.()
+            }
+            return Promise.reject(error)
+        }
+
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject })
+            }).then((accessToken) => {
+                originalRequest.headers['Authorization'] = `Bearer ${accessToken}`
+                return api(originalRequest)
+            })
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+            const { data } = await api.post('/auth/refresh')
+            const { accessToken } = data
+            setAccessToken(accessToken)
+            originalRequest.headers['Authorization'] = `Bearer ${accessToken}`
+            processQueue(null, accessToken)
+            return api(originalRequest)
+        } catch (refreshError) {
+            processQueue(refreshError, null)
+            onLogout?.()
+            return Promise.reject(refreshError)
+        } finally {
+            isRefreshing = false
+        }
     }
-
-    // Evita loop infinito na própria rota de refresh
-    if (originalRequest.url?.includes('/auth/refresh')) {
-      onLogout?.()
-      return Promise.reject(error)
-    }
-
-    // Se já está fazendo refresh, enfileira a requisição
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({ resolve, reject })
-      }).then((token) => {
-        originalRequest.headers['Authorization'] = `Bearer ${token}`
-        return api(originalRequest)
-      })
-    }
-
-    originalRequest._retry = true
-    isRefreshing = true
-
-    try {
-      // O cookie httpOnly é enviado automaticamente via withCredentials
-      const { data } = await api.post('/auth/refresh')
-      const { token } = data
-
-      localStorage.setItem('token', token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      originalRequest.headers['Authorization'] = `Bearer ${token}`
-
-      processQueue(null, token)
-      return api(originalRequest)
-    } catch (refreshError) {
-      processQueue(refreshError, null)
-      onLogout?.()
-      return Promise.reject(refreshError)
-    } finally {
-      isRefreshing = false
-    }
-  }
 )
