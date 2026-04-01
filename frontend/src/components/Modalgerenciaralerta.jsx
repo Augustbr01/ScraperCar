@@ -15,7 +15,6 @@ export function ModalGerenciarAlerta({ alerta, onFechar, onToggle, onDeletar }) 
 
     const descricao = [
         alerta.nomeMarca,
-        alerta.modelo,
         alerta.versao,
         alerta.anoMin && alerta.anoMax ? `${alerta.anoMin}–${alerta.anoMax}` : null,
     ].filter(Boolean).join(' ')
