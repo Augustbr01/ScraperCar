@@ -107,6 +107,16 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
             .sort((a, b) => Number(b.value) - Number(a.value))
     }, [marcaSelecionada, form.modelo, form.versao])
 
+    const IntervalosDisponiveis = [
+        { value: '30',   label: '30 minutos' },
+        { value: '60',   label: '1 hora'     },
+        { value: '120',  label: '2 horas'    },
+        { value: '300',  label: '5 horas'    },
+        { value: '600',  label: '10 horas'   },
+        { value: '720',  label: '12 horas'   },
+        { value: '1440', label: '24 horas'   },
+    ]
+
     // ─── Handlers ────────────────────────────────────────────────────────────
 
     const handleChange = useCallback((campo, valor) => {
@@ -257,12 +267,11 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
                                 onChange={e => handleChange('kmfim', e.target.value)}
                             />
 
-                            <input
-                                className={inputClass}
-                                placeholder="Intervalo de alerta (minutos)"
-                                type="number"
-                                value={form.intervalo}
-                                onChange={e => handleChange('intervalo', e.target.value)}
+                            <SelectField
+                                value={String(form.intervalo)}
+                                onChange={v => handleChange('intervalo', v)}
+                                options={IntervalosDisponiveis}
+                                placeholder="Intervalo de alerta"
                             />
                         </div>
 
@@ -291,7 +300,6 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
                         >
                             {salvando ? 'Criando...' : 'Criar Alerta'}
                         </button>
-
                     </div>
                 </Glass>
             </div>
