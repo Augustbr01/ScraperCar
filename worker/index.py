@@ -4,11 +4,12 @@ from datetime import datetime
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 import logging
+import asyncio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="ShopCar Scraper", version="1.0.0")
+app = FastAPI(title="ShopCar Scraper", version="1.1.0")
 
 # ── CONFIGURAÇÃO ───────────────────────────────────────────────────────────────
 
@@ -48,7 +49,6 @@ def extrair_preco(texto: str) -> float | None:
 
 
 def montar_params(busca: dict) -> dict:
-
     params = {k: v for k, v in busca.items() if k != "nome"}
 
     if "valorinicio" in params:
@@ -78,35 +78,91 @@ def extrair_anuncio(item, nome: str | None) -> dict:
         "preco":          preco_num,
         "cidade":         texto(".cidade"),
         "link":           link_tag["href"],
-        "dataEncontrado": datetime.now().strftime("%d/%m/%Y %H:%M"),  # ← camelCase
+        "dataEncontrado": datetime.now().strftime("%d/%m/%Y %H:%M"),
     }
 
+
+def extrair_total_paginas(soup: BeautifulSoup) -> int:
+    """
+    Detecta o número total de páginas disponíveis na busca.
+
+    O ShopCar renderiza um <select name="pagina"> cujas <option> enumeram
+    todas as páginas — a quantidade de options é exatamente o total de páginas.
+    Fallback: inspeciona os links da paginação inferior (.paginacao a).
+    """
+    
+    select = soup.select_one('select[name="pagina"]')
+    if select:
+        options = select.find_all("option")
+        if options:
+            return len(options)
+
+    links = soup.select(".paginacao a")
+    numeros = []
+    for link in links:
+        try:
+            numeros.append(int(link.text.strip()))
+        except ValueError:
+            pass  # ignora "Próxima ›" e similares
+
+    return max(numeros) if numeros else 1
+
+
+def extrair_anuncios_da_pagina(soup: BeautifulSoup, nome: str | None) -> list[dict]:
+    anuncios = []
+    for item in soup.select("ul.itens"):
+        if not item.select_one("a.link"):
+            continue
+        anuncios.append(extrair_anuncio(item, nome))
+    return anuncios
+
+
 # ── SCRAPER ────────────────────────────────────────────────────────────────────
+
+async def buscar_pagina(
+    client: httpx.AsyncClient,
+    params: dict,
+    pagina: int,
+) -> BeautifulSoup:
+    """Faz o GET de uma única página e retorna o BeautifulSoup."""
+    params_paginados = {**params, "pagina": pagina}
+    logger.info(f"Buscando página {pagina}: {params_paginados}")
+
+    resp = await client.get(BASE_URL, params=params_paginados)
+    resp.raise_for_status()
+    return BeautifulSoup(resp.text, "html.parser")
+
 
 async def buscar_anuncios(busca: dict) -> list[dict]:
     params = montar_params(busca)
     nome   = busca.get("nome")
 
-    logger.info(f"Buscando: {params}")
-
     try:
         async with httpx.AsyncClient(headers=HEADERS, timeout=15) as client:
-            resp = await client.get(BASE_URL, params=params)
-            resp.raise_for_status()
+
+            soup_pg1   = await buscar_pagina(client, params, pagina=1)
+            total_pgs  = extrair_total_paginas(soup_pg1)
+            logger.info(f"Total de páginas encontradas: {total_pgs}")
+
+            anuncios = extrair_anuncios_da_pagina(soup_pg1, nome)
+
+            
+            if total_pgs > 1:
+                tarefas = [
+                    buscar_pagina(client, params, pagina=pg)
+                    for pg in range(2, total_pgs + 1)
+                ]
+                soups_restantes = await asyncio.gather(*tarefas)
+
+                for soup in soups_restantes:
+                    anuncios.extend(extrair_anuncios_da_pagina(soup, nome))
+
     except httpx.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"Erro ao acessar ShopCar: {e}")
 
-    soup     = BeautifulSoup(resp.text, "html.parser")
-    anuncios = []
-
-    for item in soup.select("ul.itens"):
-        if not item.select_one("a.link"):
-            continue
-        anuncio = extrair_anuncio(item, nome)
-        anuncios.append(anuncio)
-
-    logger.info(f"Encontrados: {len(anuncios)} anúncios")
+    logger.info(f"Total de anúncios coletados: {len(anuncios)}")
     return anuncios
+
 
 # ── ROTAS ──────────────────────────────────────────────────────────────────────
 
