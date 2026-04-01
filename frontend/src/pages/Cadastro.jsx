@@ -31,7 +31,7 @@ export default function Cadastro() {
             setNumeroBo(data.numeroBo)
             setValidandoNumero(true)
         } catch (err) {
-            setErro(err.response?.data?.message || err.message || 'Erro inesperado. Tente novamente.')
+            setErro(err.response?.data?.error || err.error || 'Erro inesperado. Tente novamente.')
         } finally {
             setCarregando(false)
         }

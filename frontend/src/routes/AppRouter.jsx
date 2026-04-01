@@ -4,6 +4,7 @@ import Login from '../pages/Login'
 import Dashboard from '../pages/Dashboard'
 import Cadastro from '../pages/Cadastro'
 import ResetSenha from "../pages/ResetSenha.jsx";
+import {AuthProvider} from "../providers/AuthProvider.jsx";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuth()
@@ -19,15 +20,17 @@ function CatchAll() {
 export function AppRouter() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path='/login' element={<Login />} />
-                <Route path='/cadastro' element={<Cadastro />} />
-                <Route path='/resetsenha' element={<ResetSenha />} />
-                <Route path="/dashboard" element={
-                    <PrivateRoute><Dashboard /></PrivateRoute>
-                }/>
-                <Route path='*' element={<CatchAll />} />
-            </Routes>
+            <AuthProvider>
+                <Routes>
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/cadastro' element={<Cadastro />} />
+                    <Route path='/resetsenha' element={<ResetSenha />} />
+                    <Route path="/dashboard" element={
+                        <PrivateRoute><Dashboard /></PrivateRoute>
+                    }/>
+                    <Route path='*' element={<CatchAll />} />
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     )
 }

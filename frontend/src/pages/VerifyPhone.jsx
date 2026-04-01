@@ -19,7 +19,6 @@ export default function VerificacaoWhatsapp({
 
     const [verificando, setVerificando] = useState(false)
     const [erro, setErro] = useState('')
-
     const [trocandoNumero, setTrocandoNumero] = useState(false)
     const [novoTelefone, setNovoTelefone] = useState('')
     const [trocando, setTrocando] = useState(false)
@@ -60,7 +59,10 @@ export default function VerificacaoWhatsapp({
         <div className='bg-[#0A0A0A] min-h-screen overflow-x-hidden relative flex items-center justify-center'>
             <div className='absolute z-0 -top-40 -right-20 w-125 h-125 bg-[#00FFFF]/70 rounded-full blur-[200px]' />
 
-            <div className="justify-items-center w-[90%] max-w-md h-auto">
+            {/* Extra glow no desktop */}
+            <div className='absolute z-0 bottom-0 left-0 w-96 h-96 bg-[#AA00FF]/20 rounded-full blur-[150px]' />
+
+            <div className="justify-items-center w-[90%] max-w-md h-auto z-10">
                 <div className="relative w-full">
                     <Glass cornerRadius="40px" blur="16px" bgOpacity={0.15} borderOpacity={0.25} brightness={1.1} saturation={1.2} shadowOpacity={0.2}>
                         <div className="p-7 pt-13 flex flex-col items-center gap-6">
@@ -93,7 +95,6 @@ export default function VerificacaoWhatsapp({
                                 <span className="text-white font-bold text-lg tracking-wider">{telefone}</span>
                             </div>
 
-                            {/* Trocar número */}
                             {trocandoNumero ? (
                                 <div className="w-full flex flex-col gap-3">
                                     <input
@@ -134,12 +135,10 @@ export default function VerificacaoWhatsapp({
 
                             {erro && <span className="text-red-400 text-sm text-center">{erro}</span>}
 
-
-
                             <button
                                 onClick={handleVerificar}
                                 disabled={verificando || trocandoNumero}
-                                className="h-11 w-[70%] bg-[#AA00FF] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white font-bold"
+                                className="h-11 w-[70%] bg-[#AA00FF] disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white font-bold hover:shadow-[0_0_20px_rgba(170,0,255,0.5)] transition-shadow"
                             >
                                 {verificando ? 'Verificando...' : 'Já enviei, verificar'}
                             </button>
