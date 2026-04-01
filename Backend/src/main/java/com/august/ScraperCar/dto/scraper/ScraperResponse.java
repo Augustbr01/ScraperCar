@@ -8,10 +8,10 @@ import java.util.List;
 @Data
 public class ScraperResponse {
 
-    @JsonProperty("Total")
+    @JsonProperty("total")
     private Integer total;
 
-    @JsonProperty("Resultado")
+    @JsonProperty("resultado")
     private List<AnuncioDTO> resultado;
 
 }
