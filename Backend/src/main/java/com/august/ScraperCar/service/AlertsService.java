@@ -52,6 +52,10 @@ public class AlertsService {
 
     public ResponseEntity<AlertResponseDTO> criarAlerta(AlertRequestDTO dto, String token) {
 
+        if (dto.getIntervalo() < 30 || dto.getIntervalo() > 1500) {
+            throw new BusinessException("Intervalor não permitido", 401);
+        }
+
         String email = jwtService.extrairEmail(token);
         Optional<UserModel> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
