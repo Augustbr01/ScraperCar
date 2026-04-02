@@ -30,6 +30,7 @@ public class AlertsService {
     public final JwtService jwtService;
     public final Scheduler scheduler;
     public final SentAnnouncementRepository sentRepo;
+    private final ValidVeiculoService validVeiculoService;
 
 
     public AlertsService(UserRepository userRepository,
@@ -38,7 +39,8 @@ public class AlertsService {
                          MarcaRepository marcaRepository,
                          JwtService jwtService,
                          Scheduler scheduler,
-                         SentAnnouncementRepository sentRepo
+                         SentAnnouncementRepository sentRepo,
+                         ValidVeiculoService validVeiculoService
     ) {
         this.userRepository = userRepository;
         this.sharedJobRepository = sharedJobRepository;
@@ -47,6 +49,7 @@ public class AlertsService {
         this.jwtService = jwtService;
         this.scheduler = scheduler;
         this.sentRepo = sentRepo;
+        this.validVeiculoService = validVeiculoService;
     }
 
 
@@ -54,6 +57,20 @@ public class AlertsService {
 
         if (dto.getIntervalo() < 30 || dto.getIntervalo() > 1500) {
             throw new BusinessException("Intervalor não permitido", 401);
+        }
+
+
+        boolean veiculoValido = validVeiculoService.isValid(
+                dto.getMarca(),
+                dto.getModelo(),
+                dto.getVersao(),
+                dto.getFaixaano1(),
+                dto.getFaixaano2()
+        );
+
+
+        if (!veiculoValido) {
+            throw new BusinessException("Veiculo invalido!", 404);
         }
 
         String email = jwtService.extrairEmail(token);
