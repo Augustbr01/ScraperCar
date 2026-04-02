@@ -79,7 +79,6 @@ export function MobileMenu({ isOpen, onClose }) {
                       <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
                       <p className="mt-1">Monitorando</p>
                     </div>
-
                   </div>
 
                   {/* Links de navegação */}
@@ -116,79 +115,6 @@ export function MobileMenu({ isOpen, onClose }) {
                             />
                           </svg>
                           <span className="leading-none relative top-0.5">Meus Alertas</span>
-                        </Link>
-                      </Glass>
-                    </li>
-                    <li className="">
-                      <div className="">
-                        <Glass
-                            cornerRadius="9999px"
-                            blur="16px"
-                            bgOpacity={0.15}
-                            borderOpacity={0.25}
-                            brightness={1.1}
-                            saturation={1.2}
-                            shadowOpacity={0.2}
-                        >
-                          <Link
-                              to="/favoritos"
-                              className="group self-center items-center flex gap-2 h-12 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
-                              onClick={handleClose}
-                          >
-                            <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" className="transition-colors">
-                              <path d="M11.4416 2.92495L12.9083 5.85828C13.1083 6.26662 13.6416 6.65828 14.0916 6.73328L16.7499 7.17495C18.4499 7.45828 18.8499 8.69162 17.6249 9.90828L15.5583 11.975C15.2083 12.325 15.0166 13 15.1249 13.4833L15.7166 16.0416C16.1833 18.0666 15.1083 18.85 13.3166 17.7916L10.8249 16.3166C10.3749 16.05 9.63326 16.05 9.17492 16.3166L6.68326 17.7916C4.89992 18.85 3.81659 18.0583 4.28326 16.0416L4.87492 13.4833C4.98326 13 4.79159 12.325 4.44159 11.975L2.37492 9.90828C1.15826 8.69162 1.54992 7.45828 3.24992 7.17495L5.90826 6.73328C6.34992 6.65828 6.88326 6.26662 7.08326 5.85828L8.54992 2.92495C9.34992 1.33328 10.6499 1.33328 11.4416 2.92495Z" fill="currentColor"/>
-                            </svg>
-
-                            <span className="leading-none relative top-0.5">Anúncios Favoritos</span>
-                          </Link>
-                        </Glass>
-                      </div>
-                    </li>
-                    <li>
-                      <Glass
-                          cornerRadius="9999px"
-                          blur="16px"
-                          bgOpacity={0.15}
-                          borderOpacity={0.25}
-                          brightness={1.1}
-                          saturation={1.2}
-                          shadowOpacity={0.2}
-                      >
-                        <Link
-                            to="/relatorios"
-                            className="group cursor-pointer flex items-center gap-2 py-3 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
-                            onClick={handleClose}
-                        >
-                          <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
-                               className="transition-colors">
-                            <path d="M6.68325 3.8501H5.81659C4.49159 3.8501 3.95825 4.3501 3.95825 5.61676V15.5168H8.54159V5.61676C8.53325 4.3501 7.99992 3.8501 6.68325 3.8501Z" fill="currentColor"/>
-                            <path d="M13.7667 8.0166H12.9001C11.5751 8.0166 11.0417 8.52493 11.0417 9.78327V15.5166H15.6251V9.78327C15.6251 8.52493 15.0834 8.0166 13.7667 8.0166Z" fill="currentColor"/>
-                            <path d="M2.29175 14.8999H17.7084C18.0501 14.8999 18.3334 15.1832 18.3334 15.5249C18.3334 15.8666 18.0501 16.1499 17.7084 16.1499H2.29175C1.95008 16.1499 1.66675 15.8666 1.66675 15.5166C1.66675 15.1666 1.95008 14.8999 2.29175 14.8999Z" fill="currentColor"/>
-                          </svg>
-
-                          <span className="leading-none relative top-0.5">Relatórios</span>
-                        </Link>
-                      </Glass>
-                    </li>
-                    <li>
-                      <Glass
-                          cornerRadius="9999px"
-                          blur="16px"
-                          bgOpacity={0.15}
-                          borderOpacity={0.25}
-                          brightness={1.1}
-                          saturation={1.2}
-                          shadowOpacity={0.2}
-                      >
-                        <Link
-                            to="/historico"
-                            className="group cursor-pointer flex items-center gap-2 py-3 px-4 text-[#E0E0E0] hover:bg-[#E0E0E0] hover:text-[#0A0A0A] hover:font-bold rounded-lg transition-colors font-medium"
-                            onClick={handleClose}
-                        >
-                          <svg className="w-5 h-5 transition-colors" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.0001 1.66675C5.40841 1.66675 1.66675 5.40841 1.66675 10.0001C1.66675 14.5917 5.40841 18.3334 10.0001 18.3334C14.5917 18.3334 18.3334 14.5917 18.3334 10.0001C18.3334 5.40841 14.5917 1.66675 10.0001 1.66675ZM13.6251 12.9751C13.5084 13.1751 13.3001 13.2834 13.0834 13.2834C12.9751 13.2834 12.8667 13.2584 12.7667 13.1917L10.1834 11.6501C9.54175 11.2667 9.06675 10.4251 9.06675 9.68341V6.26675C9.06675 5.92508 9.35008 5.64175 9.69175 5.64175C10.0334 5.64175 10.3167 5.92508 10.3167 6.26675V9.68341C10.3167 9.98341 10.5667 10.4251 10.8251 10.5751L13.4084 12.1167C13.7084 12.2917 13.8084 12.6751 13.6251 12.9751Z" fill="currentColor"/>
-                          </svg>
-                          <span className="leading-none relative top-0.5">Histórico de Anúncios</span>
                         </Link>
                       </Glass>
                     </li>
