@@ -62,10 +62,13 @@ public class AlertsService {
             throw new BusinessException("Intervalor não permitido", 401);
         }
 
+        if (!(dto.getKminicio() == null)) {
+            validarKm(dto.getKminicio(), "KM início");
+        }
 
         validarValor(dto.getValorinicio(), "Valor início");
         validarValor(dto.getValorfim(), "Valor fim");
-        validarKm(dto.getKminicio(), "KM início");
+
         validarKm(dto.getKmfim(), "KM fim");
 
 
@@ -331,7 +334,10 @@ public class AlertsService {
     }
 
     private void validarValor(BigDecimal valor, String campo) {
-        if (valor.compareTo(VALOR_MAXIMO) > 0) {
+        if (valor == null) {
+            return;
+        }
+        if (valor.compareTo(VALOR_MAXIMO) >= 0) {
             throw new IllegalArgumentException(campo + " não pode ser maior que 999.999.999");
         }
     }
