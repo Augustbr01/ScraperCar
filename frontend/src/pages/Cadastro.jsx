@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import React, { useCallback, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Glass } from "../components/GlassContainer"
 import { cadastrarUsuario } from "../services/authService.js"
@@ -51,7 +51,8 @@ export default function Cadastro() {
 
     return (
         <div className='bg-[#0A0A0A] min-h-screen overflow-x-hidden relative flex items-center justify-center'>
-            <div className='absolute z-0 -top-40 -right-20 w-125 h-125 bg-[#00FFFF]/70 rounded-full blur-[200px]' />
+            <div className="absolute z-0 -top-40 -right-20 md:-right-100 md:-top-100 w-125 h-125 md:w-200 md:h-200 bg-[#00FFFF]/20 md:bg-[#00FFFF]/50 rounded-full blur-[200px] md:blur-[300px]" />
+            <div className="absolute z-10 bottom-0 left-0 md:-bottom-120 md:-left-80 w-96 h-96 md:w-200 md:h-200 bg-[#AA00FF]/20 md:bg-[#AA00FF]/60 rounded-full md:blur-[300px] blur-[200px]" />
 
             <div className="justify-items-center w-[90%] max-w-md h-auto">
                 <div className="mb-2 absolute flex top-20 items-center gap-3 self-start">
@@ -81,7 +82,7 @@ export default function Cadastro() {
                                            onChange={(e) => setSenha(e.target.value)} required />
 
                                     <input className="outline-0 p-3 pt-4 w-full rounded-full bg-[#3B3B3B] h-10 border-none text-white placeholder:text-[#E0E0E0]/50"
-                                           type="tel" placeholder="Telefone" value={telefone}
+                                           type="number" placeholder="Telefone" value={telefone}
                                            onChange={(e) => setTelefone(e.target.value)} required />
                                 </div>
 

@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -37,6 +38,8 @@ public class UserService {
 
     @Value("${WPP_NUMERO}")
     private String NUMERODOBOT;
+
+    private static final BigDecimal limite_numero = new BigDecimal("999999999999");
 
     public UserService(
             UserRepository userRepository,
@@ -58,6 +61,15 @@ public class UserService {
 
     @Transactional
     public UserCreateResponseDTO cadastro(UserCreateRequestDTO dto) {
+
+        if (!dto.getTelefone().matches("\\d+(\\.\\d+)?")) {
+            throw new IllegalArgumentException("Telefone só deve conter numeros");
+        }
+
+        BigDecimal numero = new BigDecimal(dto.getTelefone());
+        if (numero.compareTo(limite_numero) >= 0) {
+            throw new IllegalArgumentException("Telefone deve ser menor!");
+        }
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BusinessException("Email já cadastrado", 409);
@@ -131,5 +143,17 @@ public class UserService {
                 jwtService.gerarToken(email, role, user.getVerificado()),
                 jwtService.gerarRefreshToken(email, role)
         );
+    }
+
+    private void validarTelefone(String telefone) {
+        if (telefone == null || telefone.isBlank()) {
+            throw new IllegalArgumentException("Telefone não pode ser vazio");
+        }
+        if (!telefone.matches("\\d+")) { // telefone só deve ter inteiros
+            throw new IllegalArgumentException("Telefone deve conter apenas números");
+        }
+        if (new BigDecimal(telefone).compareTo(limite_numero) > 0) {
+            throw new IllegalArgumentException("Telefone inválido");
+        }
     }
 }

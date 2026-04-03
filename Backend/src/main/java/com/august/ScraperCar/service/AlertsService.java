@@ -32,6 +32,9 @@ public class AlertsService {
     public final SentAnnouncementRepository sentRepo;
     private final ValidVeiculoService validVeiculoService;
 
+    private static final BigDecimal VALOR_MAXIMO = new BigDecimal("999999999");
+    private static final BigDecimal KM_MAXIMO = new BigDecimal("1000000");
+
 
     public AlertsService(UserRepository userRepository,
                          SharedJobRepository sharedJobRepository,
@@ -58,6 +61,12 @@ public class AlertsService {
         if (dto.getIntervalo() < 30 || dto.getIntervalo() > 1500) {
             throw new BusinessException("Intervalor não permitido", 401);
         }
+
+
+        validarValor(dto.getValorinicio(), "Valor início");
+        validarValor(dto.getValorfim(), "Valor fim");
+        validarKm(dto.getKminicio(), "KM início");
+        validarKm(dto.getKmfim(), "KM fim");
 
 
         boolean veiculoValido = validVeiculoService.isValid(
@@ -319,5 +328,20 @@ public class AlertsService {
                         alerta.getCreatedAt()
                 ))
                 .toList();
+    }
+
+    private void validarValor(BigDecimal valor, String campo) {
+        if (valor.compareTo(VALOR_MAXIMO) > 0) {
+            throw new IllegalArgumentException(campo + " não pode ser maior que 999.999.999");
+        }
+    }
+
+    private void validarKm(String kmStr, String campo) {
+        if (!kmStr.matches("\\d+(\\.\\d+)?")) {
+            throw new IllegalArgumentException(campo + " deve conter apenas números");
+        }
+        if (new BigDecimal(kmStr).compareTo(KM_MAXIMO) >= 0) {
+            throw new IllegalArgumentException(campo + " não pode ser maior ou igual a 1.000.000");
+        }
     }
 }
