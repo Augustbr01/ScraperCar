@@ -62,14 +62,7 @@ public class UserService {
     @Transactional
     public UserCreateResponseDTO cadastro(UserCreateRequestDTO dto) {
 
-        if (!dto.getTelefone().matches("\\d+(\\.\\d+)?")) {
-            throw new IllegalArgumentException("Telefone só deve conter numeros");
-        }
-
-        BigDecimal numero = new BigDecimal(dto.getTelefone());
-        if (numero.compareTo(limite_numero) >= 0) {
-            throw new IllegalArgumentException("Telefone deve ser menor!");
-        }
+        validarTelefone(dto.getTelefone());
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new BusinessException("Email já cadastrado", 409);
