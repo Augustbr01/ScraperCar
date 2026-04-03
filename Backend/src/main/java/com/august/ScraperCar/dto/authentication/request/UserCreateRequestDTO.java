@@ -1,7 +1,11 @@
 package com.august.ScraperCar.dto.authentication.request;
 
 import jakarta.validation.constraints.Email;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class UserCreateRequestDTO {
     private String nome;
 
@@ -10,35 +14,4 @@ public class UserCreateRequestDTO {
     private String telefone;
     private String senha;
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
 }
