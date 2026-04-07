@@ -1,4 +1,4 @@
-import React, { useState, useCallback, Suspense } from 'react'
+import React, {useState, useCallback, Suspense, useEffect} from 'react'
 import Navbar from '../components/Navbar'
 import { useAlertas } from '../hooks/useAlertas'
 import { CardAlerta } from '../components/Cardalerta'
@@ -6,8 +6,14 @@ const ModalNovoAlerta = React.lazy(() => import('../components/ModalNovoAlerta')
 import { ModalGerenciarAlerta } from '../components/Modalgerenciaralerta'
 import { Toast } from '../components/Toast'
 import { Analytics } from '@vercel/analytics/react'
+import { checkAPI, checkWorker, checkWPP } from '../services/healthCheck.js';
+
 
 function Dashboard() {
+    const [api, setApi] = useState(true);
+    const [apiWorker, setApiWorker] = useState(true);
+    const [apiWPP, setApiWPP] = useState(true);
+
     const [modalCriarAberto, setModalCriarAberto] = useState(false)
     const [alertaSelecionado, setAlertaSelecionado] = useState(null)
     const [toast, setToast] = useState({ mensagem: '', tipo: 'sucesso' })
@@ -21,6 +27,48 @@ function Dashboard() {
     }, [])
 
     const { alertas, carregando, erro, criarAlerta, deletarAlerta, toggleAlerta } = useAlertas()
+
+    useEffect(() => {
+        let isLoading = false;
+
+        const loadHealth = async () => {
+            if (isLoading) return;
+            isLoading = true;
+
+            try {
+                const apiStatus = await checkAPI();
+
+                if (apiStatus) {
+                    setApi(true);
+
+                    const workerStatus = await checkWorker();
+                    const wppStatus = await checkWPP();
+
+                    setApiWorker(workerStatus);
+                    setApiWPP(wppStatus);
+                } else {
+                    setApi(false);
+                    setApiWorker(false);
+                    setApiWPP(false);
+                }
+            } catch (error) {
+                setApi(false);
+                setApiWorker(false);
+                setApiWPP(false);
+            } finally {
+                isLoading = false;
+            }
+        };
+
+        loadHealth();
+
+        const intervalId = setInterval(() => {
+            loadHealth();
+        }, 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
 
     const handleCriar = useCallback(async (payload) => {
         try {
@@ -72,20 +120,20 @@ function Dashboard() {
                         {/* Card de status */}
                         <div className="bg-white/4 border border-white/8 rounded-[20px] px-6 py-5">
                             <div className="flex items-center gap-2 mb-4 h-10">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-white mt-1 font-semibold text-sm">Monitorando</span>
+                                <div className={`w-2 h-2 rounded-full ${apiWorker ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}/>
+                                <span className="text-white mt-1 font-semibold text-sm">{apiWorker ? 'Monitorando' : 'Parado'}</span>
                             </div>
 
                             <div className="flex flex-col gap-2.5">
                                 {[
-                                    { label: 'Backend', ok: true },
-                                    { label: 'Scraper', ok: true },
-                                    { label: 'WPP API', ok: true },
+                                    { label: 'Backend', ok: api },
+                                    { label: 'Scraper', ok: apiWorker },
+                                    { label: 'WPP API', ok: apiWPP },
                                 ].map(({ label, ok }) => (
                                     <div key={label} className="flex justify-between items-center">
                                         <span className="text-white/60 text-[13px]">{label}</span>
                                         <div className="flex items-center gap-1.5">
-                                            <div className={`w-[7px] h-[7px] rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`} />
+                                            <div className={`w-1.75 h-1.75 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`} />
                                             <span className={`text-xs font-medium ${ok ? 'text-green-500' : 'text-red-500'}`}>
                                                 {ok ? 'Online' : 'Offline'}
                                             </span>
@@ -149,7 +197,7 @@ function Dashboard() {
                         )}
 
                         {!carregando && !erro && alertas.length === 0 && (
-                            <div className="text-center py-[60px] px-5 text-white/30">
+                            <div className="text-center py-15 px-5 text-white/30">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="mx-auto mb-4 block">
                                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
                                           stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
