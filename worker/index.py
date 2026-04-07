@@ -171,3 +171,7 @@ async def buscar(busca: BuscaRequest):
     busca_dict = busca.model_dump(exclude_none=True)
     lista      = await buscar_anuncios(busca_dict)
     return {"total": len(lista), "resultado": lista}
+
+@app.get("/check")
+async def check():
+    return {"resultado": "Servidor ON"}
