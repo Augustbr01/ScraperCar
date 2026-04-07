@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import { Glass } from "./GlassContainer";
 import { Link, useNavigate} from 'react-router-dom'
 import { useAuth } from "../hooks/useAuth";
+import { checkAPI, checkWorker, checkWPP } from "../services/healthCheck.js";
 
 export function MobileMenu({ isOpen, onClose }) {
   const [isClosing, setIsClosing] = useState(false);
+
+  const [api, setApi] = useState(true);
+  const [apiWorker, setApiWorker] = useState(true);
+  const [apiWPP, setApiWPP] = useState(true);
 
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -13,6 +18,47 @@ export function MobileMenu({ isOpen, onClose }) {
     logout();
     navigate('/login')
   }
+
+  useEffect(() => {
+    let isLoading = false;
+
+    const loadHealth = async () => {
+      if (isLoading) return;
+      isLoading = true;
+
+      try {
+        const apiStatus = await checkAPI();
+
+        if (apiStatus) {
+          setApi(true);
+
+          const workerStatus = await checkWorker();
+          const wppStatus = await checkWPP();
+
+          setApiWorker(workerStatus);
+          setApiWPP(wppStatus);
+        } else {
+          setApi(false);
+          setApiWorker(false);
+          setApiWPP(false);
+        }
+      } catch (error) {
+        setApi(false);
+        setApiWorker(false);
+        setApiWPP(false);
+      } finally {
+        isLoading = false;
+      }
+    };
+
+    loadHealth();
+
+    const intervalId = setInterval(() => {
+      loadHealth();
+    }, 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Função para fechar com animação
   const handleClose = () => {
@@ -76,8 +122,8 @@ export function MobileMenu({ isOpen, onClose }) {
                     <h1 className="font-bold text-2xl text-center mb-8">Painel</h1>
 
                     <div className="flex gap-2 mb-8">
-                      <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
-                      <p className="mt-1">Monitorando</p>
+                      <div className={`-3 h-3 ${apiWorker ? 'bg-green-500 animate-fade-pulse' : 'bg-red-500'} rounded-full self-center `}></div>
+                      <p className={`mt-1`}>{apiWorker ? 'Monitorando' : 'Parado' }</p>
                     </div>
                   </div>
 
@@ -128,15 +174,15 @@ export function MobileMenu({ isOpen, onClose }) {
                     <h2 className="text-white text-xl gap-4">Status</h2>
                     <div className="flex gap-3">
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
+                        <div className={`w-3 h-3 ${api ? 'bg-green-500 animate-fade-pulse' : 'bg-red-500'} rounded-full self-center`}></div>
                         <span className="text-white leading-none relative top-0.5">Backend</span>
                       </div>
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
+                        <div className={`w-3 h-3 ${apiWorker ? 'bg-green-500 animate-fade-pulse' : 'bg-red-500'} rounded-full self-center`}></div>
                         <span className="text-white leading-none relative top-0.5">Scraper</span>
                       </div>
                       <div className="flex gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full self-center animate-fade-pulse"></div>
+                        <div className={`w-3 h-3 ${apiWPP ? 'bg-green-500 animate-fade-pulse' : 'bg-red-500'} rounded-full self-center`}></div>
                         <span className="text-white leading-none relative top-0.5">WPP API</span>
                       </div>
                     </div>
