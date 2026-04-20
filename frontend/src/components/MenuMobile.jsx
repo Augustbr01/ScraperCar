@@ -42,7 +42,7 @@ export function MobileMenu({ isOpen, onClose }) {
           setApiWorker(false);
           setApiWPP(false);
         }
-      } catch (error) {
+      } catch {
         setApi(false);
         setApiWorker(false);
         setApiWPP(false);
