@@ -81,11 +81,7 @@ public class UserService {
 
         String codigo = verifyService.gerarCodigo();
 
-        VerifyCodeModel verifyCodeModel = new VerifyCodeModel();
-        verifyCodeModel.setCodigo(codigo);
-        verifyCodeModel.setUser(savedUser);
-        verifyCodeModel.setExpiresAt(LocalDateTime.now().plusMinutes(15));
-        verifyCodeRepository.save(verifyCodeModel);
+        verifyService.salvarCodigo(savedUser, codigo);
 
         return new UserCreateResponseDTO(
                 savedUser.getId(),
