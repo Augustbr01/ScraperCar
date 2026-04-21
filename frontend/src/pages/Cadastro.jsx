@@ -144,28 +144,24 @@ export default function Cadastro() {
   const [codigoVerificacao, setCodigoVerificacao] = useState('')
   const [numeroBo, setNumeroBo] = useState('')
 
+  const validar = () => {
+    if (telefone.includes("+55")) return "Insira o numero de telefone neste formato (ex: DDD999999999)";
+    if (telefone.length > 12 || telefone.length < 10) return "Tamanho de numero incorreto";
+    if (nome.length > 100 || nome.length < 4) return "Nome deve conter menos de 100 e mais que 4 caracteres";
+    if (email.length > 50) return "Email muito longo";
+    if (!email.includes("@")) return "Email deve incluir um @";
+    return null;
+  };
+
   const handleSubmit = useCallback(async (e) => {
-    if (telefone.includes("+55")) {
-      setErro("Insira o numero de telefone neste formato (ex: DDD999999999");
+    e.preventDefault();
+
+    const erroValidacao = validar();
+    if (erroValidacao) {
+      setErro(erroValidacao);
       return;
     }
-    if (telefone.length > 12 || telefone.length < 10) {
-      setErro("Tamanho de numero incorreto");
-      return;
-    }
-    if(nome.length > 100 || nome.length < 4) {
-      setErro("Nome deve conter menos de 100 e mais que 4 caracteres");
-      return;
-    }
-    if (email.length > 50) {
-      setErro("Email muito longo");
-      return;
-    }
-    if (!email.includes("@")) {
-      setErro("Email deve incluir um @");
-      return;
-    }
-    e.preventDefault()
+
     setCarregando(true)
     setErro('')
     try {
