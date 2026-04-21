@@ -133,6 +133,10 @@ export default function VerificacaoWhatsapp({
                                 Abra o WhatsApp, envie exatamente o código acima e clique em verificar.
                             </p>
 
+                            <a href={`https://wa.me/+551798215672?text=${codigoVerificacao}`} className="text-[#39FF14]/40 text-xs text-center">
+                                Link direto para o WhatsApp
+                            </a>
+
                             {erro && <span className="text-red-400 text-sm text-center">{erro}</span>}
 
                             <button
