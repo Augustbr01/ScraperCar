@@ -8,9 +8,7 @@ import com.august.ScraperCar.dto.authentication.response.UserCreateResponseDTO;
 import com.august.ScraperCar.dto.authentication.response.UserLoginResponseDTO;
 import com.august.ScraperCar.exception.BusinessException;
 import com.august.ScraperCar.model.UserModel;
-import com.august.ScraperCar.model.VerifyCodeModel;
 import com.august.ScraperCar.repository.UserRepository;
-import com.august.ScraperCar.repository.VerifyCodeRepository;
 import com.august.ScraperCar.service.wpp.VerifyService;
 import com.august.ScraperCar.util.PepperUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
 public class UserService {
 
     private final VerifyService verifyService;
-    private final VerifyCodeRepository verifyCodeRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PepperUtil pepperUtil;
@@ -47,8 +43,7 @@ public class UserService {
             PepperUtil pepperUtil,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
-            VerifyService verifyService,
-            VerifyCodeRepository verifyCodeRepository)
+            VerifyService verifyService)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -56,7 +51,7 @@ public class UserService {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.verifyService = verifyService;
-        this.verifyCodeRepository = verifyCodeRepository;
+
     }
 
     @Transactional
