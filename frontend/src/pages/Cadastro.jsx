@@ -145,6 +145,26 @@ export default function Cadastro() {
   const [numeroBo, setNumeroBo] = useState('')
 
   const handleSubmit = useCallback(async (e) => {
+    if (telefone.includes("+55")) {
+      setErro("Insira o numero de telefone neste formato (ex: DDD999999999");
+      return;
+    }
+    if (telefone.length > 12 || telefone.length < 10) {
+      setErro("Tamanho de numero incorreto");
+      return;
+    }
+    if(nome.length > 100 || nome.length < 4) {
+      setErro("Nome deve conter menos de 100 e mais que 4 caracteres");
+      return;
+    }
+    if (email.length > 50) {
+      setErro("Email muito longo");
+      return;
+    }
+    if (!email.includes("@")) {
+      setErro("Email deve incluir um @");
+      return;
+    }
     e.preventDefault()
     setCarregando(true)
     setErro('')
@@ -296,7 +316,7 @@ export default function Cadastro() {
 
               <div className="cad-field" style={{ marginBottom: '14px' }}>
                 <FieldLabel>Telefone (WhatsApp)</FieldLabel>
-                <input className="cad-input" type="tel" placeholder="+55 11 9 0000-0000"
+                <input className="cad-input" type="tel" placeholder="11 9 0000-0000"
                   value={telefone} onChange={e => setTelefone(e.target.value)} disabled={carregando} required />
               </div>
 
