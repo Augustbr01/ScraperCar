@@ -126,6 +126,8 @@ Dos componentes do sistema, é o que eu tenho mais confiança que está sólido.
 
 **Fluxo de cadastro e verificação de número.** A lógica que amarra o registro do usuário no banco com a verificação do número de WhatsApp ficou com decisões que, revendo hoje, eu refaria diferente. O ponto mais frágil é o **canal de comunicação de volta do WppConnect para o Spring Boot** — a forma como o Backend fica sabendo que o usuário respondeu o código de verificação. Esse caminho foi improvisado durante a implementação e hoje eu escolheria um mecanismo diferente. É a parte do código que mais denuncia "fui aprendendo enquanto escrevia".
 
+Mais aprofundado em [`docs/architecture.md`](https://github.com/Augustbr01/ScraperCar/blob/develop/docs/architecture.md)
+
 ### 🔄 O que eu faria diferente hoje
 
 - **Começaria com Flyway desde o dia 1.** `ddl-auto=update` é conveniente em dev, mas em produção que recebe refactors, migrações versionadas evitam surpresas e permitem rollback.
