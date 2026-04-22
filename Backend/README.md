@@ -4,7 +4,7 @@ API orquestradora do ScraperCar. Toda decisão do sistema passa por aqui:
 autenticação, agendamento dos jobs de scraping, chamada ao Worker, envio de
 mensagens via WppConnect, persistência de alertas e anúncios.
 
-> 📖 Contexto completo do sistema no [README raiz](../README.md).
+> 📖 Contexto completo do sistema no [README](../README.md).
 
 ---
 
@@ -113,7 +113,7 @@ O `JwtAuthFilter` bloqueia com **403** qualquer requisição de usuário com
 de verificação.
 
 Detalhes da justificativa em
-[`docs/architecture.md`](../docs/architecture.md#jwt--refresh-token--pepper).
+[`docs/architecture.md`](../docs/architecture.md).
 
 ---
 
