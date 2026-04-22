@@ -8,18 +8,18 @@ Sistema automatizado que monitora ofertas de veículos no **ShopCar** e avisa o 
 
 ## 📑 Sumário
 
-- [Sobre este projeto](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-sobre-este-projeto)
-- [Como funciona](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-como-funciona)
-- [O que aprendi construindo isto](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-o-que-aprendi-construindo-isto)
-- [Stack](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-stack)
-- [Rodando localmente](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-rodando-localmente)
-- [Variáveis de ambiente](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-vari%C3%A1veis-de-ambiente)
-- [Configurando o WppConnect](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-configurando-o-wppconnect)
-- [Documentação adicional](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#-documenta%C3%A7%C3%A3o-adicional)
+- [Sobre este projeto](#-sobre-este-projeto)
+- [Como funciona](#-como-funciona)
+- [O que aprendi construindo isto](#-o-que-aprendi-construindo-isto)
+- [Stack](#-stack)
+- [Rodando localmente](#-rodando-localmente)
+- [Variáveis de ambiente](#-variáveis-de-ambiente)
+- [Configurando o WppConnect](#-configurando-o-wppconnect)
+- [Documentação adicional](#-documentação-adicional)
 
 ---
 
-## 📖 Sobre este projeto
+# 📖 Sobre este projeto
 
 Este é um projeto pessoal que nasceu de duas vontades ao mesmo tempo:
 
@@ -30,7 +30,7 @@ O resultado está online e eu uso. Além de mostrar como o sistema funciona, est
 
 ---
 
-## ⚙️ Como funciona
+# ⚙️ Como funciona
 
 ### Arquitetura
 
@@ -60,7 +60,7 @@ Três serviços próprios (Backend, Worker, Frontend), um banco Postgres e uma i
 
 **O Backend é o único orquestrador** — nem o Frontend nem o Worker sabem da existência dos outros. Tudo passa pelo Spring Boot. O Worker é stateless: recebe filtros, raspa o ShopCar, devolve JSON, não persiste nada.
 
-### O fluxo do job periódico
+# O fluxo do job periódico
 
 O coração do sistema é o **Quartz**, disparando um job a cada 30 minutos, **alinhado ao relógio global** (12:00, 12:30, 13:00…) — não ao horário em que a aplicação subiu. A frequência mínima que um usuário pode escolher também é 30 minutos, então todos os ticks batem nessa mesma janela.
 
@@ -102,7 +102,7 @@ Três decisões importantes estão codificadas nesse fluxo:
 
 ---
 
-## 🧠 O que aprendi construindo isto
+# 🧠 O que aprendi construindo isto
 
 Esta é a parte do README que normalmente não existe em projetos de portfólio. Acho que deveria existir.
 
@@ -135,7 +135,7 @@ Dos componentes do sistema, é o que eu tenho mais confiança que está sólido.
 
 ---
 
-## 🧰 Stack
+# 🧰 Stack
 
 | Camada       | Tecnologia                                              |
 | ------------ | ------------------------------------------------------- |

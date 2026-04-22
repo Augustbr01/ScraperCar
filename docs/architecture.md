@@ -6,16 +6,16 @@ Este documento descreve **por que** o sistema é estruturado do jeito que é. O 
 
 ## Índice
 
-- [Princípios norteadores](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#princ%C3%ADpios-norteadores)
-- [Componentes e por que existem](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#componentes-e-por-que-existem)
-- [Fluxos do sistema](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#fluxos-do-sistema)
-- [Modelo de dados](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#modelo-de-dados)
-- [Segurança](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#seguran%C3%A7a)
-- [Pontos fracos conhecidos](https://claude.ai/chat/83d05ef1-369d-488a-a33b-dd087198e0c2#pontos-fracos-conhecidos)
+- [Princípios norteadores](#princípios-norteadores)
+- [Componentes e por que existem](#componentes-e-por-que-existem)
+- [Fluxos do sistema](#fluxos-do-sistema)
+- [Modelo de dados](#modelo-de-dados)
+- [Segurança](#segurança)
+- [Pontos fracos conhecidos](#pontos-fracos-conhecidos)
 
 ---
 
-## Princípios norteadores
+# Princípios norteadores
 
 Três ideias estruturam o resto:
 
@@ -28,7 +28,7 @@ Três ideias estruturam o resto:
 
 ---
 
-## Componentes e por que existem
+# Componentes e por que existem
 
 ### Backend Spring Boot (orquestrador)
 
@@ -69,7 +69,7 @@ A escolha do WebClient em vez desses dois foi deliberada: ele é a API mais mode
 
 ---
 
-## Fluxos do sistema
+# Fluxos do sistema
 
 ### Cadastro do usuário
 
@@ -229,7 +229,7 @@ Confirmação:
 
 ---
 
-## Modelo de dados
+# Modelo de dados
 
 ### Tabelas principais
 
@@ -252,7 +252,7 @@ Apenas um: `scrape_cache.resultado`, mapeado via `@JdbcTypeCode(SqlTypes.JSON)` 
 
 ---
 
-## Segurança
+# Segurança
 
 Quatro camadas, cada uma cobrindo uma falha da outra:
 
@@ -285,7 +285,7 @@ Bloqueia com 403 qualquer request com JWT de usuário não-verificado em rotas n
 
 ---
 
-## Pontos fracos conhecidos
+# Pontos fracos conhecidos
 
 Parte mais honesta da documentação. Nada aqui é teórico — são coisas que eu sei que existem e não priorizei resolver.
 
@@ -351,7 +351,7 @@ Não medido. Chute informado: com mais de ~100 alertas ativos simultâneos, a co
 
 ---
 
-## O que eu faria diferente hoje
+# O que eu faria diferente hoje
 
 Um resumo consolidado dos "refaria" espalhados acima:
 
