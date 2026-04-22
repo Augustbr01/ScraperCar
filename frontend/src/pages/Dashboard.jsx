@@ -73,7 +73,7 @@ function Dashboard() {
     const handleCriar = useCallback(async (payload) => {
         try {
             await criarAlerta(payload)
-            mostrarToast('O Alerta foi criado com sucesso!', 'sucesso')
+            mostrarToast('O Alerta foi criado com sucesso, se tiver anuncios existentes, receberá em alguns instantes... Aguarde!', 'sucesso')
         } catch (err) {
             const msg = err.response?.data?.message || 'Ocorreu um erro ao salvar os dados'
             mostrarToast(msg, 'erro')

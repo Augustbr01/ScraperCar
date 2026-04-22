@@ -281,8 +281,8 @@ export function ModalNovoAlerta({ aberto, onFechar, onCriar }) {
                                 <circle cx="12" cy="12" r="10" stroke="#60a5fa" strokeWidth="1.5"/>
                                 <path d="M12 8v4M12 16h.01" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round"/>
                             </svg>
-                            <span className="text-[#E0E0E0] opacity-50 text-[11px] leading-normal">
-                                Ao criar o alerta, o usuário receberá todos os anúncios presentes até o atual momento da criação.
+                            <span className="text-[#E0E0E0] opacity-80 text-[11px] leading-normal">
+                                Ao criar o alerta, o usuário receberá em aproximadamente 3 minutos todos os anúncios presentes até o atual momento.
                             </span>
                         </div>
 
