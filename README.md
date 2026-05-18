@@ -2,7 +2,6 @@
 
 Sistema automatizado que monitora ofertas de veículos no **ShopCar** e avisa o usuário via **WhatsApp** sempre que um anúncio novo aparece dentro dos filtros cadastrados.
 
-> 🌐 **Online:** [scrapercar.augustdev.com.br](https://scrapercar.augustdev.com.br/) — pode criar uma conta e usar.
 
 ![Banner](/frontend/public/Banner.png)
 ---
@@ -27,7 +26,7 @@ Este é um projeto pessoal que nasceu de duas vontades ao mesmo tempo:
 1. **Resolver um problema real** — ficar apertando F5 em classificado de carro é chato. Alerta por e-mail já existe em todo lugar, mas alerta no WhatsApp (onde eu de fato olho mensagem em segundos) não.
 2. **Aprender na prática** a construir um sistema multi-serviço completo: orquestração, agendamento confiável, autenticação robusta, integração com APIs externas, deploy.
 
-O resultado está online e eu uso. Além de mostrar como o sistema funciona, este README também documenta, abaixo, **o que acertei, o que falhei, e o que faria diferente** — porque esse é o tipo de coisa que eu ia querer ler se estivesse olhando o repositório de outra pessoa.
+Além de mostrar como o sistema funciona, este README também documenta, abaixo, **o que acertei, o que falhei, e o que faria diferente** — porque esse é o tipo de coisa que eu ia querer ler se estivesse olhando o repositório de outra pessoa.
 
 ---
 
